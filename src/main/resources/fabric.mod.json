@@ -1,0 +1,45 @@
+{
+	"schemaVersion": 1,
+	"id": "monkeyconfig",
+	"version": "${version}",
+	"name": "Monkey Config",
+	"description": " A Minecraft Fabric server-side modding library to ease in the creation of file based configurations for server-side mods.",
+	"authors": [
+		"ArkoSammy12"
+	],
+	"contact": {
+		"homepage": "https://github.com/ArkoSammy12",
+		"sources": "https://github.com/ArkoSammy12/Monkey-Config"
+	},
+	"license": "MIT",
+	"icon": "assets/monkeyconfig/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "xd.arkosammy.monkeyconfig.MonkeyConfig",
+				"adapter": "kotlin"
+			}
+		],
+		"client": [
+			{
+				"value": "xd.arkosammy.monkeyconfig.MonkeyConfigClient",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"monkeyconfig.mixins.json",
+		{
+			"config": "monkeyconfig.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.20.4",
+		"java": ">=17",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	}
+}
