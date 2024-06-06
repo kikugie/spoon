@@ -1,18 +1,17 @@
 package xd.arkosammy.monkeyconfig.settings
 
 import com.mojang.brigadier.arguments.DoubleArgumentType
-import xd.arkosammy.monkeyconfig.managers.ConfigManager
 import xd.arkosammy.monkeyconfig.MonkeyConfig
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-class DoubleSetting(configManager: ConfigManager, settingIdentifier: SettingIdentifier, comment: String?, value: Double, private val lowerBound: Double? = null, private val upperBound: Double? = null) : ConfigSetting<Double>(configManager, settingIdentifier, comment, value), CommandControllableSetting<Double, DoubleArgumentType> {
+open class DoubleSetting(settingIdentifier: SettingIdentifier, comment: String? = null, defaultValue: Double, value: Double = defaultValue, private val lowerBound: Double? = null, private val upperBound: Double? = null) : ConfigSetting<Double>(settingIdentifier, comment, defaultValue, value), CommandControllableSetting<Double, DoubleArgumentType> {
 
     override val commandIdentifier: SettingIdentifier
         get() = this.settingIdentifier
 
-    override fun accept(visitor: CommandVisitor<Double, DoubleArgumentType>) {
+    override fun accept(visitor: CommandVisitor) {
         visitor.visit(this)
     }
 
@@ -61,8 +60,8 @@ class DoubleSetting(configManager: ConfigManager, settingIdentifier: SettingIden
             return this
         }
 
-        override fun build(configManager: ConfigManager): DoubleSetting {
-            return DoubleSetting(configManager, id, this.comment, defaultValue, lowerBound, upperBound)
+        override fun build(): DoubleSetting {
+            return DoubleSetting(id, this.comment, defaultValue, defaultValue, lowerBound, upperBound)
         }
 
     }
