@@ -1,18 +1,17 @@
 package xd.arkosammy.monkeyconfig.settings
 
 import com.mojang.brigadier.arguments.IntegerArgumentType
-import xd.arkosammy.monkeyconfig.managers.ConfigManager
 import xd.arkosammy.monkeyconfig.MonkeyConfig
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-class IntSetting(configManager: ConfigManager, settingIdentifier: SettingIdentifier, comment: String?, value: Int, private val lowerBound: Int? = null, private val upperBound: Int? = null) : ConfigSetting<Int>(configManager, settingIdentifier, comment, value), CommandControllableSetting<Int, IntegerArgumentType> {
+open class IntSetting(settingIdentifier: SettingIdentifier, comment: String? = null, defaultValue: Int, value: Int = defaultValue, private val lowerBound: Int? = null, private val upperBound: Int? = null) : ConfigSetting<Int>(settingIdentifier, comment, value), CommandControllableSetting<Int, IntegerArgumentType> {
 
     override val commandIdentifier: SettingIdentifier
         get() = this.settingIdentifier
 
-    override fun accept(visitor: CommandVisitor<Int, IntegerArgumentType>) {
+    override fun accept(visitor: CommandVisitor) {
         visitor.visit(this)
     }
 
@@ -61,8 +60,8 @@ class IntSetting(configManager: ConfigManager, settingIdentifier: SettingIdentif
             return this
         }
 
-        override fun build(configManager: ConfigManager): IntSetting {
-            return IntSetting(configManager, id, this.comment, defaultValue, lowerBound, upperBound)
+        override fun build(): IntSetting {
+            return IntSetting(id, this.comment, defaultValue, defaultValue, lowerBound, upperBound)
         }
 
     }

@@ -1,17 +1,16 @@
 package xd.arkosammy.monkeyconfig.settings
 
 import com.mojang.brigadier.arguments.BoolArgumentType
-import xd.arkosammy.monkeyconfig.managers.ConfigManager
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-class BooleanSetting(configManager: ConfigManager, settingIdentifier: SettingIdentifier, comment: String?, value: Boolean) : ConfigSetting<Boolean>(configManager, settingIdentifier, comment, value), CommandControllableSetting<Boolean, BoolArgumentType> {
+open class BooleanSetting(settingIdentifier: SettingIdentifier, comment: String? = null, defaultValue: Boolean, value: Boolean = defaultValue) : ConfigSetting<Boolean>(settingIdentifier, comment, defaultValue, value), CommandControllableSetting<Boolean, BoolArgumentType> {
 
     override val commandIdentifier: SettingIdentifier
         get() = this.settingIdentifier
 
-    override fun accept(visitor: CommandVisitor<Boolean, BoolArgumentType>) {
+    override fun accept(visitor: CommandVisitor) {
         visitor.visit(this)
     }
 
@@ -23,8 +22,8 @@ class BooleanSetting(configManager: ConfigManager, settingIdentifier: SettingIde
 
     class Builder(id: SettingIdentifier, defaultValue: Boolean) : ConfigSetting.Builder<Boolean, BooleanSetting>(id, defaultValue) {
 
-        override fun build(configManager: ConfigManager): BooleanSetting {
-            return BooleanSetting(configManager, this.id, this.comment, this.defaultValue)
+        override fun build(): BooleanSetting {
+            return BooleanSetting(this.id, this.comment, this.defaultValue)
         }
 
     }

@@ -1,26 +1,33 @@
 package xd.arkosammy.monkeyconfig
 
-import com.mojang.brigadier.CommandDispatcher
 import net.fabricmc.api.ModInitializer
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
-import net.minecraft.command.CommandRegistryAccess
-import net.minecraft.server.command.CommandManager
-import net.minecraft.server.command.ServerCommandSource
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+// TODO: Continue properly documenting
 object MonkeyConfig : ModInitializer {
-
-	// TODO: Continue documenting library
 
 	const val MOD_ID: String = "monkeyconfig"
 	val LOGGER: Logger = LoggerFactory.getLogger(MOD_ID)
+	//val manager: ConfigManager = TODO()
 
 	override fun onInitialize() {
+		/*
+		CommandRegistrationCallback.EVENT.register { commandDispatcher, commandRegistryAccess, registrationEnvironment ->
 
-		CommandRegistrationCallback.EVENT.register { commandDispatcher: CommandDispatcher<ServerCommandSource>, commandRegistryAccess: CommandRegistryAccess, registrationEnvironment: CommandManager.RegistrationEnvironment ->
+			val commandVisitor: CommandVisitor = DefaultCommandVisitor(manager, commandDispatcher)
+			for(table: ConfigTable in manager.configTables) {
+				for(setting: ConfigSetting<*> in table.configSettings) {
+					if(setting !is CommandControllableSetting<*, *>) {
+						continue
+					}
+					setting.accept(commandVisitor)
+				}
+			}
 
 		}
+
+		 */
 
 	}
 }

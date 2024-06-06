@@ -2,6 +2,7 @@ package xd.arkosammy.monkeyconfig.tables
 
 import com.electronwill.nightconfig.core.CommentedConfig
 import com.electronwill.nightconfig.core.file.CommentedFileConfig
+import com.electronwill.nightconfig.core.file.FileConfig
 import xd.arkosammy.monkeyconfig.MonkeyConfig
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 
@@ -55,25 +56,13 @@ interface ConfigTable {
      */
     fun onSavedToFile() {}
 
-
-    /**
-     * Adds the config settings provided by {@code settings} to this table.
-     * Implementors of this method should check whether the table has already been registered and return false if it has, and do nothing.
-     * Implementors of this method should also copy the input list to a new list to prevent it from being modified after being added to the table.
-     *
-     * @param settings The settings to add to this table
-     * @return Whether the settings were successfully added to the table
-     *
-     */
-    fun addConfigSettings(settings: List<ConfigSetting<*>>) : Boolean
-
     /**
      * Sets the values of the settings in this table to their default values, then writes these values to {@code fileConfig}.
      * This method should be called when creating a new config file or when the config file is missing settings.
      *
      * @param fileConfig The {@code CommentedFileConfig} instance to which to write the default values of the settings to
      */
-    fun setDefaultValues(fileConfig: CommentedFileConfig) {
+    fun setDefaultValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*> in this.configSettings) {
             setting.resetValue()
         }
@@ -85,13 +74,17 @@ interface ConfigTable {
      *
      * @param fileConfig The {@code CommentedFileConfig} instance to which to write the values of the settings to
      */
-    fun setValues(fileConfig: CommentedFileConfig) {
+    fun setValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*> in this.configSettings) {
             val settingAddress: String = "${this.name}.${setting.settingIdentifier}"
             fileConfig.set<Any>(settingAddress, setting.value)
-            setting.comment?.let { comment -> fileConfig.setComment(settingAddress, comment) }
+            setting.comment?.let { comment ->
+                if(fileConfig is CommentedFileConfig) fileConfig.setComment(settingAddress, comment)
+            }
         }
-        this.comment?.let { comment -> fileConfig.setComment(this.name, comment) }
+        this.comment?.let { comment ->
+            if(fileConfig is CommentedFileConfig) fileConfig.setComment(this.name, comment)
+        }
         val tableConfig: CommentedConfig = fileConfig.get(this.name)
         tableConfig.entrySet().removeIf { entry -> !this.containsSettingName(entry.key)}
     }
@@ -101,7 +94,7 @@ interface ConfigTable {
      *
      * @param fileConfig The {@code CommentedFileConfig} instance from which to load the values of the settings from
      */
-    fun loadValues(fileConfig: CommentedFileConfig) {
+    fun loadValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*> in this.configSettings) {
             val settingAddress: String = "${this.name}.${setting.settingIdentifier}"
             val value: Any? = fileConfig.getOrElse(settingAddress, setting.defaultValue)
@@ -127,8 +120,8 @@ interface ConfigTable {
     }
 
     /**
-     * Checks whether this table contains a setting with the name {@code settingName}.
-     * @returns whether this table contains a setting with the name {@code settingName}
+     * Checks whether this table contains a setting with the name [settingName].
+     * @return whether this table contains a setting with the name [settingName]
      */
     fun containsSettingName(settingName: String) : Boolean {
         for(setting: ConfigSetting<*> in this.configSettings) {

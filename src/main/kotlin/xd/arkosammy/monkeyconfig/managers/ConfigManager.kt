@@ -3,23 +3,50 @@ package xd.arkosammy.monkeyconfig.managers
 import xd.arkosammy.monkeyconfig.settings.*
 import xd.arkosammy.monkeyconfig.tables.ConfigTable
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
+import xd.arkosammy.monkeyconfig.tables.MutableConfigTable
+import com.electronwill.nightconfig.core.Config
+import kotlin.jvm.Throws
 
 /**
  * A class that handles the management of config tables and interacts with an internal [Config] instance to save and load settings from a file.
  */
 interface ConfigManager {
 
+    val configName: String
+
     /**
-     * A immutable view of the config tables in this config manager. If this list is provided by a mutable source, implementors should copy this list into an immutable list to avoid further modifications
+     * An immutable list of the config tables in this config manager.
+     * If this list is provided by an outside source,
+     * implementors should copy this list into an immutable list to avoid further modifications.
+     * Implementors should also make sure that the [ConfigTable] instances are not an instance of [MutableConfigTable].
      */
     val configTables: List<ConfigTable>
 
+    /**
+     * Will attempt
+     * to reload the values of the config settings stored in this config manager from the file if it exists.
+     *
+     * @return true if the reload was successful, false if otherwise.
+     * A common cause of the reloading failing is due to a missing config file.
+     */
     fun reloadFromFile() : Boolean
 
+    /**
+     * Will attempt to save the values of the config settings store in this config manager to the config file, or create a new config file if it doesn't exist. If a new config file is created, the config tables in this manager will be reset to their default values.
+     */
     fun saveToFile()
 
+    /**
+     * Returns a config setting with the given [settingId] and [settingClass].
+     * If the setting does not exist, an [IllegalArgumentException] will be thrown.
+     */
+    @Throws(IllegalArgumentException::class)
     fun <V, T : ConfigSetting<V>> getTypedSetting(settingId: SettingIdentifier, settingClass: Class<T>) : T
 
+    /**
+     * Returns a config table with the given [tableName], or throws an [IllegalArgumentException] if the table cannot be found.
+     */
+    @Throws(IllegalArgumentException::class)
     fun getConfigTable(tableName: String) : ConfigTable
 
 }

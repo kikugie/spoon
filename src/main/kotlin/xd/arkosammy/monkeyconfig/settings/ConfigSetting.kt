@@ -1,11 +1,8 @@
 package xd.arkosammy.monkeyconfig.settings
 
-import xd.arkosammy.monkeyconfig.managers.ConfigManager
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-// TODO: Fix subclass constructors to include defaultValue and starting value
-
-abstract class ConfigSetting<T : Any> @JvmOverloads constructor(val configManager: ConfigManager, open val settingIdentifier: SettingIdentifier, open val comment: String? = null, open val defaultValue: T, open var value: T = defaultValue) {
+abstract class ConfigSetting<T : Any> @JvmOverloads constructor(open val settingIdentifier: SettingIdentifier, open val comment: String? = null, open val defaultValue: T, open var value: T = defaultValue) {
 
     fun resetValue() {
         this.value = this.defaultValue
@@ -21,7 +18,7 @@ abstract class ConfigSetting<T : Any> @JvmOverloads constructor(val configManage
         val tableName: String
             get() = id.tableName
 
-        abstract fun build(configManager: ConfigManager) : S
+        abstract fun build() : S
 
     }
 
