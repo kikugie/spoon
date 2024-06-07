@@ -5,6 +5,7 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig
 import com.electronwill.nightconfig.core.file.FileConfig
 import xd.arkosammy.monkeyconfig.MonkeyConfig
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
+import xd.arkosammy.monkeyconfig.settings.EnumSetting
 
 /**
  * Represents a container of config settings useful for grouping related config settings under a common namespace. They can be registered with a config manager to be loaded from and saved to a config file.
@@ -72,7 +73,7 @@ interface ConfigTable {
     /**
      * Writes the current values of the settings in this table to {@code fileConfig}.
      *
-     * @param fileConfig The {@code CommentedFileConfig} instance to which to write the values of the settings to
+     * @param fileConfig The [CommentedFileConfig] instance to which to write the values of the settings to
      */
     fun setValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*> in this.configSettings) {
@@ -97,10 +98,9 @@ interface ConfigTable {
     fun loadValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*> in this.configSettings) {
             val settingAddress: String = "${this.name}.${setting.settingIdentifier}"
-            val value: Any? = fileConfig.getOrElse(settingAddress, setting.defaultValue)
+            val value: Any? = if(setting is EnumSetting<*>) fileConfig.getEnum(settingAddress, setting.enumClass) ?: setting.defaultValue else fileConfig.getOrElse(settingAddress, setting.defaultValue)
             setValueSafely(setting, value)
         }
-
     }
 
     @Suppress("UNCHECKED_CAST")

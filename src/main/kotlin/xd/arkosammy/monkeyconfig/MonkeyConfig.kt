@@ -12,6 +12,7 @@ object MonkeyConfig : ModInitializer {
 	//val manager: ConfigManager = TODO()
 
 	override fun onInitialize() {
+
 		/*
 		CommandRegistrationCallback.EVENT.register { commandDispatcher, commandRegistryAccess, registrationEnvironment ->
 

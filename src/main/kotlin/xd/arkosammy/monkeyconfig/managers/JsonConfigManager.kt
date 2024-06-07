@@ -19,7 +19,10 @@ open class JsonConfigManager : AbstractConfigManager {
     final override val configPath: Path = FabricLoader.getInstance().configDir.resolve("$configName.json")
     override val configBuilder: GenericBuilder<out Config, out FileConfig> = FileConfig.builder(this.configPath, JsonFormat.fancyInstance())
         .preserveInsertionOrder()
-        .concurrent()
+        .autoreload()
         .sync()
+        .onSave { this.onSave }
+        .onLoad { this.onLoaded }
+        .onAutoReload { this.onAutoReload }
 
 }

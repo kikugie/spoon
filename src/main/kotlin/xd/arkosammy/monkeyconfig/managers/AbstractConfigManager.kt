@@ -20,6 +20,21 @@ abstract class AbstractConfigManager : ConfigManager {
     final override val configName: String
     protected abstract val configBuilder: GenericBuilder<out Config, out FileConfig>
     protected abstract val configPath: Path
+    protected open val onAutoReload: () -> Unit
+        get() = {
+            this.ifConfigPresent { fileConfig ->
+                if (!Files.exists(this.configPath)) {
+                    return@ifConfigPresent false
+                }
+                this.configTables.forEach { configTable -> configTable.loadValues(fileConfig) }
+                this.configTables.forEach(ConfigTable::onLoaded)
+                return@ifConfigPresent true
+            }
+        }
+    protected open val onSave: () -> Unit
+        get() = {}
+    protected open val onLoaded: () -> Unit
+        get() = {}
 
     /**
      * Constructs a new [AbstractConfigManager] with the given [configName] and [configTables]. The [configTables] given to this constructor must already be immutable and be populated with [ConfigSetting]s.

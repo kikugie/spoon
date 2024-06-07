@@ -19,7 +19,10 @@ open class YamlConfigManager : AbstractConfigManager {
     final override val configPath: Path = FabricLoader.getInstance().configDir.resolve("$configName.yaml")
     override val configBuilder: GenericBuilder<out Config, out FileConfig> = FileConfig.builder(this.configPath, YamlFormat.defaultInstance())
         .preserveInsertionOrder()
-        .concurrent()
+        .autoreload()
         .sync()
+        .onSave { this.onSave }
+        .onLoad { this.onLoaded }
+        .onAutoReload { this.onAutoReload }
 
 }

@@ -20,7 +20,10 @@ open class TomlConfigManager : AbstractConfigManager {
     final override val configPath: Path = FabricLoader.getInstance().configDir.resolve("$configName.toml")
     override val configBuilder: GenericBuilder<out Config, out FileConfig> = CommentedFileConfig.builder(this.configPath, TomlFormat.instance())
         .preserveInsertionOrder()
-        .concurrent()
+        .autoreload()
         .sync()
+        .onSave { this.onSave }
+        .onLoad { this.onLoaded }
+        .onAutoReload { this.onAutoReload }
 
 }

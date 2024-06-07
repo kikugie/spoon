@@ -2,8 +2,7 @@ package xd.arkosammy.monkeyconfig.settings
 
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-// TODO: Make this a sealed class to make sure valid values are written to the config file. The types of these values should correspond to those given by ConfigFormat#supportsType
-abstract class ConfigSetting<T : Any> @JvmOverloads constructor(open val settingIdentifier: SettingIdentifier, open val comment: String? = null, open val defaultValue: T, open var value: T = defaultValue) {
+sealed class ConfigSetting<T : Any> @JvmOverloads constructor(open val settingIdentifier: SettingIdentifier, open val comment: String? = null, open val defaultValue: T, open var value: T = defaultValue) {
 
     fun resetValue() {
         this.value = this.defaultValue
