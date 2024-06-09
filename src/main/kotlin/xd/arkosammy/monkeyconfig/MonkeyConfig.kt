@@ -52,5 +52,7 @@ object MonkeyConfig : ModInitializer {
 
 		 */
 
+		LOGGER.info("Thanks to isXander (https://github.com/isXander) for helping me get into Kotlin from Java :D")
+
 	}
 }
