@@ -37,6 +37,8 @@ interface ConfigTable {
      */
     val loadBeforeSave : Boolean
 
+    val registerSettingsAsCommands: Boolean
+
     /**
      * Sets this config table as registered. This method should be called after the table has been added to a config manager and should be used a check before attempting to modify the table.
      */
@@ -79,7 +81,7 @@ interface ConfigTable {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
             val settingAddress: String = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
             val valueAsSerialized: SerializableType<*> = setting.valueAsSerialized
-            fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.listAsFullyDeserialized else valueAsSerialized)
+            fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.listAsFullyDeserialized else valueAsSerialized.value)
             setting.comment?.let { comment ->
                 if(fileConfig is CommentedFileConfig) fileConfig.setComment(settingAddress, comment)
             }
@@ -106,7 +108,7 @@ interface ConfigTable {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T, V : SerializableType<*>> setValueSafely(setting: ConfigSetting<T, V>, value : SerializableType<*>) {
+    fun <T, V : SerializableType<*>> setValueSafely(setting: ConfigSetting<T, V>, value : SerializableType<*>) {
         when (value) {
             is NumberType<*> -> {
                 if(setting.defaultValueAsSerialized is NumberType<*>) {

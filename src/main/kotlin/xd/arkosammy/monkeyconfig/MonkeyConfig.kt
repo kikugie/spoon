@@ -24,7 +24,7 @@ object MonkeyConfig : ModInitializer {
 	const val MOD_ID: String = "monkeyconfig"
 	val LOGGER: Logger = LoggerFactory.getLogger(MOD_ID)
 	//val manager: ConfigManager = TomlConfigManager("test", listOf(SimpleConfigTable(name = "testTable", comment = "tableComment", configSettings = listOf(
-	//	BlockPosSetting(settingIdentifier = SettingIdentifier("testTable", "blockPosSetting"), defaultValue = BlockPos(1, 2, 3))
+	///BlockPosSetting(settingIdentifier = SettingIdentifier("testTable", "blockPosSetting"), defaultValue = BlockPos(1, 2, 3))
 	//))))
 
 	override fun onInitialize() {
@@ -35,6 +35,9 @@ object MonkeyConfig : ModInitializer {
 		CommandRegistrationCallback.EVENT.register { commandDispatcher, commandRegistryAccess, registrationEnvironment ->
 			val commandVisitor: CommandVisitor = DefaultCommandVisitor(manager, commandDispatcher)
 			for(table: ConfigTable in manager.configTables) {
+				if(!table.registerSettingsAsCommands) {
+					continue
+				}
 				for(setting: ConfigSetting<*, *> in table.configSettings) {
 					if(setting !is CommandControllableSetting<*, *>) {
 						continue
@@ -51,6 +54,8 @@ object MonkeyConfig : ModInitializer {
 		}
 
 		 */
+
+
 
 		LOGGER.info("Thanks to isXander (https://github.com/isXander) for helping me get into Kotlin from Java :D")
 

@@ -19,12 +19,12 @@ abstract class ConfigSetting<T, S : SerializableType<*>> @JvmOverloads construct
         this.value = this.defaultValue
     }
 
-    abstract class Builder<V : Any, R : SerializableType<*>, S : ConfigSetting<V, R>>(protected val id: SettingIdentifier, protected var comment: String? = null, protected val defaultValue: V) {
+    abstract class Builder<V : Any, S : SerializableType<*>, T : ConfigSetting<V, S>>(protected val id: SettingIdentifier, protected var comment: String? = null, protected val defaultValue: V) {
 
         val tableName: String
             get() = id.tableName
 
-        abstract fun build() : S
+        abstract fun build() : T
 
     }
 

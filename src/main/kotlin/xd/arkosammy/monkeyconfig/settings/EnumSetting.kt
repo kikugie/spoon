@@ -4,17 +4,17 @@ import xd.arkosammy.monkeyconfig.types.EnumType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
 // TODO: Test this!!
-abstract class EnumSetting<T : Enum<T>>(
+abstract class EnumSetting<E : Enum<E>>(
     settingIdentifier: SettingIdentifier,
     comment: String? = null,
-    defaultValue: T,
-    value: T = defaultValue) : ConfigSetting<T, EnumType<T>>(settingIdentifier, comment, value) {
+    defaultValue: E,
+    value: E = defaultValue) : ConfigSetting<E, EnumType<E>>(settingIdentifier, comment, value) {
 
-    val enumClass: Class<T> = defaultValue.declaringJavaClass
+    val enumClass: Class<E> = defaultValue.declaringJavaClass
 
-    abstract class Builder<T : Enum<T>>(id: SettingIdentifier, comment: String? = null, defaultValue: T) : ConfigSetting.Builder<T, EnumType<T>, EnumSetting<T>>(id, comment, defaultValue) {
+    abstract class Builder<E : Enum<E>>(id: SettingIdentifier, comment: String? = null, defaultValue: E) : ConfigSetting.Builder<E, EnumType<E>, EnumSetting<E>>(id, comment, defaultValue) {
 
-        abstract override fun build(): EnumSetting<T>
+        abstract override fun build(): EnumSetting<E>
 
     }
 
