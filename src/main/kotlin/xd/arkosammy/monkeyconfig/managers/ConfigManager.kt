@@ -5,6 +5,7 @@ import xd.arkosammy.monkeyconfig.tables.ConfigTable
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 import xd.arkosammy.monkeyconfig.tables.MutableConfigTable
 import com.electronwill.nightconfig.core.Config
+import xd.arkosammy.monkeyconfig.settings.list.StringListSetting
 import kotlin.jvm.Throws
 
 /**
@@ -41,7 +42,7 @@ interface ConfigManager {
      * If the setting does not exist, an [IllegalArgumentException] will be thrown.
      */
     @Throws(IllegalArgumentException::class)
-    fun <V, T : ConfigSetting<V>> getTypedSetting(settingId: SettingIdentifier, settingClass: Class<T>) : T
+    fun <V, T : ConfigSetting<V, *>> getTypedSetting(settingId: SettingIdentifier, settingClass: Class<T>) : T
 
     /**
      * Returns a config table with the given [tableName], or throws an [IllegalArgumentException] if the table cannot be found.
@@ -51,13 +52,13 @@ interface ConfigManager {
 
 }
 
-inline fun <V, reified T : ConfigSetting<V>> ConfigManager.getTypedSetting(settingId: SettingIdentifier) : T {
+inline fun <V, reified T : ConfigSetting<V, *>> ConfigManager.getTypedSetting(settingId: SettingIdentifier) : T {
     return this.getTypedSetting(settingId, T::class.java)
 }
 
-fun ConfigManager.getAsIntSetting(settingId: SettingIdentifier) : IntSetting = this.getTypedSetting(settingId)
+fun ConfigManager.getAsIntSetting(settingId: SettingIdentifier) : NumberSetting<Int> = this.getTypedSetting(settingId)
 
-fun ConfigManager.getAsDoubleSetting(settingId: SettingIdentifier) : DoubleSetting = this.getTypedSetting(settingId)
+fun ConfigManager.getAsDoubleSetting(settingId: SettingIdentifier) : NumberSetting<Double> = this.getTypedSetting(settingId)
 
 fun ConfigManager.getAsBooleanSetting(settingId: SettingIdentifier) : BooleanSetting = this.getTypedSetting(settingId)
 

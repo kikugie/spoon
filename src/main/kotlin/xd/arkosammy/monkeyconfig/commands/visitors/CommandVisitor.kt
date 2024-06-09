@@ -55,6 +55,6 @@ abstract class CommandVisitor(protected val configManager: ConfigManager, protec
         configNode.addChild(reloadNode)
     }
 
-    abstract fun <V : Any, T : ArgumentType<V>> visit(commandControllableSetting: CommandControllableSetting<V, T>)
+    abstract fun <V : Any, T : ArgumentType<*>> visit(commandControllableSetting: CommandControllableSetting<V, T>)
 
 }

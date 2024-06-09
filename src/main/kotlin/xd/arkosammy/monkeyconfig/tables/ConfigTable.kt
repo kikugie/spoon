@@ -3,9 +3,9 @@ package xd.arkosammy.monkeyconfig.tables
 import com.electronwill.nightconfig.core.CommentedConfig
 import com.electronwill.nightconfig.core.file.CommentedFileConfig
 import com.electronwill.nightconfig.core.file.FileConfig
-import xd.arkosammy.monkeyconfig.MonkeyConfig
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.settings.EnumSetting
+import xd.arkosammy.monkeyconfig.types.*
 
 /**
  * Represents a container of config settings useful for grouping related config settings under a common namespace. They can be registered with a config manager to be loaded from and saved to a config file.
@@ -25,7 +25,7 @@ interface ConfigTable {
     /**
      * An immutable view of the config settings in this config table. This property should always return an immutable view of the settings in this table.
      */
-    val configSettings: List<ConfigSetting<*>>
+    val configSettings: List<ConfigSetting<*, *>>
 
     /**
      * Whether this table has been registered with a config manager. This method should be set using {@code setAsRegistered()} after initializing the table and adding it to the config manager to prevent further settings from being added.
@@ -64,7 +64,7 @@ interface ConfigTable {
      * @param fileConfig The {@code CommentedFileConfig} instance to which to write the default values of the settings to
      */
     fun setDefaultValues(fileConfig: FileConfig) {
-        for(setting: ConfigSetting<*> in this.configSettings) {
+        for(setting: ConfigSetting<*, *> in this.configSettings) {
             setting.resetValue()
         }
         this.setValues(fileConfig)
@@ -76,9 +76,10 @@ interface ConfigTable {
      * @param fileConfig The [CommentedFileConfig] instance to which to write the values of the settings to
      */
     fun setValues(fileConfig: FileConfig) {
-        for(setting: ConfigSetting<*> in this.configSettings) {
-            val settingAddress: String = "${this.name}.${setting.settingIdentifier}"
-            fileConfig.set<Any>(settingAddress, setting.value)
+        for(setting: ConfigSetting<*, *> in this.configSettings) {
+            val settingAddress: String = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
+            val valueAsSerialized: SerializableType<*> = setting.valueAsSerialized
+            fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.listAsFullyDeserialized else valueAsSerialized)
             setting.comment?.let { comment ->
                 if(fileConfig is CommentedFileConfig) fileConfig.setComment(settingAddress, comment)
             }
@@ -93,28 +94,44 @@ interface ConfigTable {
     /**
      * Loads the values of the settings in this table from {@code fileConfig}.
      *
-     * @param fileConfig The {@code CommentedFileConfig} instance from which to load the values of the settings from
+     * @param fileConfig The [CommentedFileConfig] instance from which to load the values of the settings from
      */
     fun loadValues(fileConfig: FileConfig) {
-        for(setting: ConfigSetting<*> in this.configSettings) {
-            val settingAddress: String = "${this.name}.${setting.settingIdentifier}"
-            val value: Any? = if(setting is EnumSetting<*>) fileConfig.getEnum(settingAddress, setting.enumClass) ?: setting.defaultValue else fileConfig.getOrElse(settingAddress, setting.defaultValue)
-            setValueSafely(setting, value)
+        for(setting: ConfigSetting<*, *> in this.configSettings) {
+            val settingAddress: String = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
+            val value: Any = (if(setting is EnumSetting<*>) fileConfig.getEnum(settingAddress, setting.enumClass) ?: setting.defaultValue else fileConfig.getOrElse(settingAddress, setting.defaultValueAsSerialized))!!
+            val deserializedValue: SerializableType<*> = toSerializedType(value)
+            setValueSafely(setting, deserializedValue)
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T : Any> setValueSafely(setting: ConfigSetting<T>, value: Any?) {
-        var safeValue: Any? = value
-        setting.defaultValue.let { defaultValue ->
-            when (defaultValue::class) {
-                Integer::class -> if (value is Number) safeValue = value.toInt()
-                Double::class -> if (value is Number) safeValue = value.toDouble()
+    private fun <T, V : SerializableType<*>> setValueSafely(setting: ConfigSetting<T, V>, value : SerializableType<*>) {
+        when (value) {
+            is NumberType<*> -> {
+                if(setting.defaultValueAsSerialized is NumberType<*>) {
+                    setting.setFromSerializedValue(value as V)
+                }
             }
-            if (defaultValue::class.isInstance(safeValue)) {
-                setting.value = safeValue as T
-            } else {
-                MonkeyConfig.LOGGER.error("Failed to load value for setting ${setting.settingIdentifier} in table ${this.name}. Expected ${defaultValue::class.simpleName}, got ${safeValue?.javaClass?.simpleName}!. Using default value instead")
+            is BooleanType -> {
+                if(setting.defaultValueAsSerialized is BooleanType) {
+                    setting.setFromSerializedValue(value as V)
+                }
+            }
+            is EnumType -> {
+                if(setting.defaultValueAsSerialized is EnumType<*>) {
+                    setting.setFromSerializedValue(value as V)
+                }
+            }
+            is ListType<*> -> {
+                if(setting.defaultValueAsSerialized is ListType<*>) {
+                    setting.setFromSerializedValue(value as V)
+                }
+            }
+            is StringType -> {
+                if(setting.defaultValueAsSerialized is StringType) {
+                    setting.setFromSerializedValue(value as V)
+                }
             }
         }
     }
@@ -124,7 +141,7 @@ interface ConfigTable {
      * @return whether this table contains a setting with the name [settingName]
      */
     fun containsSettingName(settingName: String) : Boolean {
-        for(setting: ConfigSetting<*> in this.configSettings) {
+        for(setting: ConfigSetting<*, *> in this.configSettings) {
             if(setting.settingIdentifier.settingName == settingName) {
                 return true
             }
@@ -132,5 +149,16 @@ interface ConfigTable {
         return false
     }
 
+}
 
+fun toSerializedType(value: Any): SerializableType<*> {
+    return when (value) {
+        is SerializableType<*> -> value
+        is List<*> -> ListType(value.filterNotNull().map { e -> toSerializedType(e) })
+        is Number -> NumberType(value)
+        is String -> StringType(value)
+        is Boolean -> BooleanType(value)
+        is Enum<*> -> EnumType(value)
+        else -> throw IllegalArgumentException("Unsupported type: ${value::class.simpleName}")
+    }
 }

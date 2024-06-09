@@ -8,7 +8,7 @@ interface MutableConfigTable : ConfigTable {
     /**
      * Adds a [ConfigSetting] to this [ConfigTable].
      */
-    fun addConfigSetting(settings: ConfigSetting<*>)
+    fun addConfigSetting(settings: ConfigSetting<*, *>)
 
     /**
      * Removes a [ConfigSetting] from this [ConfigTable] by its [SettingIdentifier].

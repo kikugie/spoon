@@ -15,12 +15,7 @@ import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 /**
  * Represents an entity that can be controlled via commands. This is used to create command nodes for settings in the command tree.
  */
-interface CommandControllableSetting<V : Any, T : ArgumentType<V>> {
-
-    /**
-     * The class of the argument type that will be used to retrieve the argument value from the command context.
-     */
-    val argumentClass: Class<V>
+interface CommandControllableSetting<out V : Any, T : ArgumentType<*>> {
 
     /**
      * The argument that will be used to create the [ArgumentCommandNode] for this setting.
@@ -33,16 +28,22 @@ interface CommandControllableSetting<V : Any, T : ArgumentType<V>> {
     val commandIdentifier: SettingIdentifier
 
     /**
+     * TODO: Make this javadoc
+     */
+    fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String) : V
+
+    /**
      * The callback tha will be executed whenever the value of this setting is set via command. By default, it simply retrieves the value and sets it to the setting corresponding to the [commandIdentifier].
      */
     val onValueSetCallback: (CommandContext<ServerCommandSource>, ConfigManager) -> Int
         get() = get@{ ctx, configManager ->
             try {
-                val newValue: V = ctx.getArgument(this.commandIdentifier.settingName, this.argumentClass)
-                val setting: ConfigSetting<V> = configManager.getTypedSetting(this.commandIdentifier)
-                setting.value =  newValue
+                val setting: ConfigSetting<V, *> = configManager.getTypedSetting(this.commandIdentifier)
+                val newValue: V = this.getArgumentValue(ctx, this.commandIdentifier.settingName)
+                setting.value = newValue
+                ctx.source.sendMessage(Text.literal("${this.commandIdentifier.settingName} has been set to : ${setting.value}"))
                 return@get Command.SINGLE_SUCCESS
-            } catch (e: IllegalArgumentException) {
+            } catch (e: Exception) {
                     ctx.source.sendMessage(Text.literal("Error attempting to set value for ${this.commandIdentifier.settingName}: ${e.message}"))
                 return@get Command.SINGLE_SUCCESS
             }
@@ -53,7 +54,7 @@ interface CommandControllableSetting<V : Any, T : ArgumentType<V>> {
      */
     val onValueGetCallback: (CommandContext<ServerCommandSource>, ConfigManager) -> Int
         get() = get@{ ctx, configManager ->
-            val setting: ConfigSetting<V> = configManager.getTypedSetting(this.commandIdentifier)
+            val setting: ConfigSetting<V, *> = configManager.getTypedSetting(this.commandIdentifier)
             val currentValue: V = setting.value
             ctx.source.sendMessage(Text.literal("${this.commandIdentifier.settingName} currently set to: $currentValue"))
             return@get Command.SINGLE_SUCCESS

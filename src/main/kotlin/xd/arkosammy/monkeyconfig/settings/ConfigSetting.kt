@@ -1,19 +1,25 @@
 package xd.arkosammy.monkeyconfig.settings
 
+import xd.arkosammy.monkeyconfig.types.SerializableType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-sealed class ConfigSetting<T : Any> @JvmOverloads constructor(open val settingIdentifier: SettingIdentifier, open val comment: String? = null, open val defaultValue: T, open var value: T = defaultValue) {
+abstract class ConfigSetting<T, S : SerializableType<*>> @JvmOverloads constructor(
+    open val settingIdentifier: SettingIdentifier,
+    open val comment: String? = null,
+    open val defaultValue: T,
+    open var value: T = defaultValue) {
+
+    abstract val valueAsSerialized: S
+
+    abstract val defaultValueAsSerialized: S
+
+    abstract fun setFromSerializedValue(serializedValue: S)
 
     fun resetValue() {
         this.value = this.defaultValue
     }
 
-    abstract class Builder<V : Any, S : ConfigSetting<V>>(protected val id: SettingIdentifier, protected val defaultValue: V, protected var comment: String? = null) {
-
-        fun withComment(comment: String) : Builder<V, S> {
-            this.comment = comment
-            return this
-        }
+    abstract class Builder<V : Any, R : SerializableType<*>, S : ConfigSetting<V, R>>(protected val id: SettingIdentifier, protected var comment: String? = null, protected val defaultValue: V) {
 
         val tableName: String
             get() = id.tableName

@@ -1,6 +1,7 @@
 package xd.arkosammy.monkeyconfig.managers
 
 import com.electronwill.nightconfig.core.Config
+import com.electronwill.nightconfig.core.ConfigFormat
 import com.electronwill.nightconfig.core.file.FileConfig
 import com.electronwill.nightconfig.core.file.GenericBuilder
 import xd.arkosammy.monkeyconfig.MonkeyConfig
@@ -18,8 +19,10 @@ abstract class AbstractConfigManager : ConfigManager {
 
     final override val configTables: List<ConfigTable>
     final override val configName: String
-    protected abstract val configBuilder: GenericBuilder<out Config, out FileConfig>
-    protected abstract val configPath: Path
+    protected val configBuilder: GenericBuilder<out Config, out FileConfig>
+    protected val configPath: Path
+    // TODO: This is not being called
+    /*
     protected open val onAutoReload: () -> Unit
         get() = {
             this.ifConfigPresent { fileConfig ->
@@ -36,11 +39,21 @@ abstract class AbstractConfigManager : ConfigManager {
     protected open val onLoaded: () -> Unit
         get() = {}
 
+     */
+
     /**
      * Constructs a new [AbstractConfigManager] with the given [configName] and [configTables]. The [configTables] given to this constructor must already be immutable and be populated with [ConfigSetting]s.
      */
-    constructor(configName: String, configTables: List<ConfigTable>) {
+    constructor(configName: String, configTables: List<ConfigTable>, configFormat: ConfigFormat<*>, configPath: Path) {
         this.configName = configName
+        this.configPath = configPath
+        this.configBuilder = FileConfig.builder(this.configPath, configFormat)
+            .preserveInsertionOrder()
+            //.autoreload()
+            .sync()
+            //.onSave { this.onSave }
+            //.onLoad { this.onLoaded }
+            //.onAutoReload { this.onAutoReload }
         this.configTables = configTables.toList()
         this.initialize()
     }
@@ -48,9 +61,17 @@ abstract class AbstractConfigManager : ConfigManager {
     /**
      * Constructs a new [AbstractConfigManager] with the given [configName], [configTables], and [settingBuilders]. The setting builders are used to create the settings for the config tables. The config tables are then turned to their immutable variation.
      */
-    constructor(configName: String, configTables: List<MutableConfigTable>, settingBuilders: List<ConfigSetting.Builder<*, *>>) {
+    constructor(configName: String, configTables: List<MutableConfigTable>, settingBuilders: List<ConfigSetting.Builder<*, *, *>>, configFormat: ConfigFormat<*>, configPath: Path) {
         this.configName = configName
-        for (settingBuilder: ConfigSetting.Builder<*, *> in settingBuilders) {
+        this.configPath = configPath
+        this.configBuilder = FileConfig.builder(this.configPath, configFormat)
+            .preserveInsertionOrder()
+            //.autoreload()
+            .sync()
+            //.onSave { this.onSave }
+            //.onLoad { this.onLoaded }
+            //.onAutoReload { this.onAutoReload }
+        for (settingBuilder: ConfigSetting.Builder<*, *, *> in settingBuilders) {
             val tableName: String = settingBuilder.tableName
             for (configTable: MutableConfigTable in configTables) {
                 if (configTable.name != tableName) {
@@ -70,25 +91,18 @@ abstract class AbstractConfigManager : ConfigManager {
         System.setProperty("nightconfig.preserveInsertionOrder", "true")
         this.checkForSettingNameUniqueness()
         this.ifConfigPresent { fileConfig ->
-            if (!Files.exists(this.configPath)) {
-                MonkeyConfig.LOGGER.warn("Found no preexisting configuration file to load settings from. Creating a new configuration file with default values in ${this.configPath}")
-                this.createNewConfigFile(fileConfig)
-            } else {
-                fileConfig.load()
-                this.configTables.forEach { table -> table.loadValues(fileConfig) }
-                this.configTables.forEach(ConfigTable::onLoaded)
-                this.saveToFile()
-                MonkeyConfig.LOGGER.info("Found existing configuration file. Loaded values from ${this.configPath}")
-            }
+            fileConfig.load()
+            this.configTables.forEach { table -> table.loadValues(fileConfig) }
+            this.configTables.forEach(ConfigTable::onLoaded)
+            this.saveToFile()
+            MonkeyConfig.LOGGER.info("Found existing configuration file. Loaded values from ${this.configPath}")
             return@ifConfigPresent true
         }
+
     }
 
     override fun reloadFromFile(): Boolean {
         return this.ifConfigPresent { fileConfig ->
-            if (!Files.exists(this.configPath)) {
-                return@ifConfigPresent false
-            }
             fileConfig.load()
             this.configTables.forEach { configTable -> configTable.loadValues(fileConfig) }
             this.configTables.forEach(ConfigTable::onLoaded)
@@ -98,16 +112,11 @@ abstract class AbstractConfigManager : ConfigManager {
 
     override fun saveToFile() {
         this.ifConfigPresent { fileConfig ->
-            if (!Files.exists(this.configPath)) {
-                MonkeyConfig.LOGGER.warn("Found no preexisting configuration file to save settings to. Creating a new configuration file with default values in ${this.configPath}")
-                this.createNewConfigFile(fileConfig)
-            } else {
-                fileConfig.load()
-                this.configTables.forEach { table -> if (table.loadBeforeSave) table.loadValues(fileConfig) }
-                this.configTables.forEach { table -> table.setValues(fileConfig) }
-                fileConfig.save()
-                this.configTables.forEach(ConfigTable::onSavedToFile)
-            }
+            fileConfig.load()
+            this.configTables.forEach { table -> if (table.loadBeforeSave) table.loadValues(fileConfig) }
+            this.configTables.forEach { table -> table.setValues(fileConfig) }
+            fileConfig.save()
+            this.configTables.forEach(ConfigTable::onSavedToFile)
             return@ifConfigPresent true
         }
     }
@@ -123,14 +132,14 @@ abstract class AbstractConfigManager : ConfigManager {
 
     // Not using reified generics to keep interoperability with Java and to avoid the need to expose the config tables
     @Suppress("UNCHECKED_CAST")
-    override fun <V, T : ConfigSetting<V>> getTypedSetting(settingId: SettingIdentifier, settingClass: Class<T>): T {
+    override fun <V, T : ConfigSetting<V, *>> getTypedSetting(settingId: SettingIdentifier, settingClass: Class<T>): T {
         val tableName: String = settingId.tableName
         val settingName: String = settingId.settingName
         for (configTable: ConfigTable in this.configTables) {
             if (configTable.name != tableName) {
                 continue
             }
-            for (setting: ConfigSetting<*> in configTable.configSettings) {
+            for (setting: ConfigSetting<*, *> in configTable.configSettings) {
                 if (!settingClass.isInstance(setting) || setting.settingIdentifier.settingName != settingName) {
                     continue
                 }
@@ -141,8 +150,15 @@ abstract class AbstractConfigManager : ConfigManager {
     }
 
     protected fun ifConfigPresent(fileConfigFunction: (FileConfig) -> Boolean): Boolean {
-        this.configBuilder.build().use { fileConfig ->
-            return@ifConfigPresent fileConfigFunction(fileConfig ?: return@ifConfigPresent false)
+        val fileExists: Boolean = Files.exists(this.configPath)
+        return this.configBuilder.build().use { fileConfig ->
+            if(fileExists) {
+                return@ifConfigPresent fileConfigFunction(fileConfig ?: return@ifConfigPresent false)
+            } else {
+                MonkeyConfig.LOGGER.warn("Found no preexisting configuration file to load values from. Creating a new configuration file at ${this.configPath}")
+                this.createNewConfigFile(fileConfig)
+                false
+            }
         }
     }
 
@@ -154,7 +170,7 @@ abstract class AbstractConfigManager : ConfigManager {
     private fun checkForSettingNameUniqueness() {
         val settingNames: MutableSet<String> = mutableSetOf()
         for (configTable: ConfigTable in this.configTables) {
-            for (setting: ConfigSetting<*> in configTable.configSettings) {
+            for (setting: ConfigSetting<*, *> in configTable.configSettings) {
                 if (settingNames.contains(setting.settingIdentifier.settingName)) {
                     throw IllegalArgumentException("Setting name ${setting.settingIdentifier} is not unique")
                 }

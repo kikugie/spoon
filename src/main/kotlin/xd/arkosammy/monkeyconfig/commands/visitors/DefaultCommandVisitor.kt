@@ -15,7 +15,7 @@ class DefaultCommandVisitor(configManager: ConfigManager, commandDispatcher: Com
     private val configCategories: List<String> = this.configManager.configTables.map { table ->  table.name }.toList()
     private val cachedCategoryNodes: MutableList<LiteralCommandNode<ServerCommandSource>> = mutableListOf()
 
-    override fun <V : Any, T : ArgumentType<V>> visit(commandControllableSetting: CommandControllableSetting<V, T>) {
+    override fun <V : Any, T : ArgumentType<*>> visit(commandControllableSetting: CommandControllableSetting<V, T>) {
 
         val settingName: String = commandControllableSetting.commandIdentifier.settingName
         val settingCategory: String = commandControllableSetting.commandIdentifier.tableName
@@ -42,7 +42,7 @@ class DefaultCommandVisitor(configManager: ConfigManager, commandDispatcher: Com
             .executes { ctx -> commandControllableSetting.onValueGetCallback(ctx, this.configManager) }
             .build()
 
-        val setNode: ArgumentCommandNode<ServerCommandSource, V> = CommandManager
+        val setNode: ArgumentCommandNode<ServerCommandSource, out Any> = CommandManager
             .argument(settingName, commandControllableSetting.argumentType)
             .requires { source -> source.hasPermissionLevel(4) }
             .executes { ctx -> commandControllableSetting.onValueSetCallback(ctx, this.configManager) }
@@ -53,7 +53,7 @@ class DefaultCommandVisitor(configManager: ConfigManager, commandDispatcher: Com
                 continue
             }
             node.addChild(settingNode)
-            node.addChild(setNode)
+            settingNode.addChild(setNode)
         }
 
     }
