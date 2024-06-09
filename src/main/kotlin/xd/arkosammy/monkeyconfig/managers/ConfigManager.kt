@@ -4,7 +4,6 @@ import xd.arkosammy.monkeyconfig.settings.*
 import xd.arkosammy.monkeyconfig.tables.ConfigTable
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 import xd.arkosammy.monkeyconfig.tables.MutableConfigTable
-import com.electronwill.nightconfig.core.Config
 import xd.arkosammy.monkeyconfig.settings.list.StringListSetting
 import kotlin.jvm.Throws
 

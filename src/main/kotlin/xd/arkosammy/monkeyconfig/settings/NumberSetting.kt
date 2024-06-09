@@ -11,7 +11,7 @@ import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 import kotlin.math.max
 import kotlin.math.min
 
-open class NumberSetting<T : Number>(
+open class NumberSetting<T : Number> @JvmOverloads constructor(
     settingIdentifier: SettingIdentifier,
     comment: String? = null,
     defaultValue: T,
@@ -99,7 +99,7 @@ open class NumberSetting<T : Number>(
         visitor.visit(this)
     }
 
-    class Builder<T : Number>(id: SettingIdentifier, comment: String? = null, defaultValue: T) : ConfigSetting.Builder<T, NumberType<T>, NumberSetting<T>>(id, comment, defaultValue) {
+    class Builder<T : Number> @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: T) : ConfigSetting.Builder<T, NumberType<T>, NumberSetting<T>>(id, comment, defaultValue) {
 
         private var lowerBound: T? = null
         private var upperBound: T? = null

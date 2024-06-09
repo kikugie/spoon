@@ -10,12 +10,11 @@ import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.types.StringType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-open class IdentifierSetting(
+open class IdentifierSetting @JvmOverloads constructor(
     settingIdentifier: SettingIdentifier,
     comment: String? = null,
     override val defaultValue: Identifier,
     override var value: Identifier = defaultValue) : ConfigSetting<Identifier, StringType>(settingIdentifier, comment, defaultValue, value), CommandControllableSetting<Identifier, IdentifierArgumentType> {
-
 
     override val valueAsSerialized: StringType
         get() = StringType(this.value.toString())

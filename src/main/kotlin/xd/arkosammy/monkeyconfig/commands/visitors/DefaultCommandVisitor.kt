@@ -10,7 +10,7 @@ import net.minecraft.server.command.ServerCommandSource
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 import xd.arkosammy.monkeyconfig.managers.ConfigManager
 
-class DefaultCommandVisitor(configManager: ConfigManager, commandDispatcher: CommandDispatcher<ServerCommandSource>, rootNodeName: String = configManager.configName, commandRegistryAccess: CommandRegistryAccess? = null, registrationEnvironment: CommandManager.RegistrationEnvironment? = null) : CommandVisitor(configManager, commandDispatcher, rootNodeName, commandRegistryAccess, registrationEnvironment) {
+class DefaultCommandVisitor @JvmOverloads constructor(configManager: ConfigManager, commandDispatcher: CommandDispatcher<ServerCommandSource>, rootNodeName: String = configManager.configName, commandRegistryAccess: CommandRegistryAccess? = null, registrationEnvironment: CommandManager.RegistrationEnvironment? = null) : CommandVisitor(configManager, commandDispatcher, rootNodeName, commandRegistryAccess, registrationEnvironment) {
 
     private val configCategories: List<String> = this.configManager.configTables.map { table ->  table.name }.toList()
     private val cachedCategoryNodes: MutableList<LiteralCommandNode<ServerCommandSource>> = mutableListOf()

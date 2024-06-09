@@ -40,7 +40,7 @@ abstract class ConfigSetting<T, S : SerializableType<*>> @JvmOverloads construct
      * @param [S] The [SerializableType] type which will be used in the resulting [ConfigSetting]
      * @param [T] The type of the resulting [ConfigSetting] instance
      */
-    abstract class Builder<V : Any, S : SerializableType<*>, T : ConfigSetting<V, S>>(protected val id: SettingIdentifier, protected var comment: String? = null, protected val defaultValue: V) {
+    abstract class Builder<V : Any, S : SerializableType<*>, T : ConfigSetting<V, S>> @JvmOverloads constructor(protected val id: SettingIdentifier, protected var comment: String? = null, protected val defaultValue: V) {
 
         val tableName: String
             get() = id.tableName

@@ -8,7 +8,7 @@ import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.types.BooleanType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-open class BooleanSetting(
+open class BooleanSetting @JvmOverloads constructor(
     settingIdentifier: SettingIdentifier,
     comment: String? = null,
     defaultValue: Boolean,
@@ -39,7 +39,7 @@ open class BooleanSetting(
     override val argumentType : BoolArgumentType
         get() = BoolArgumentType.bool()
 
-    class Builder(id: SettingIdentifier, comment: String? = null, defaultValue: Boolean) : ConfigSetting.Builder<Boolean, BooleanType, BooleanSetting>(id, comment, defaultValue) {
+    class Builder @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: Boolean) : ConfigSetting.Builder<Boolean, BooleanType, BooleanSetting>(id, comment, defaultValue) {
 
         override fun build(): BooleanSetting {
             return BooleanSetting(this.id, this.comment, this.defaultValue)

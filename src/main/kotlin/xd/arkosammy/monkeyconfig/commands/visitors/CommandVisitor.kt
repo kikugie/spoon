@@ -20,7 +20,7 @@ import xd.arkosammy.monkeyconfig.managers.ConfigManager
  *
  * Implementors should be aware that the constructor of this class already registers the root node, the config node, as well as the relaod node, so there is no need to register them again
  */
-abstract class CommandVisitor(protected val configManager: ConfigManager, protected val commandDispatcher: CommandDispatcher<ServerCommandSource>, rootNodeName: String = configManager.configName, protected val commandRegistryAccess: CommandRegistryAccess? = null, protected val registrationEnvironment: CommandManager.RegistrationEnvironment? = null) {
+abstract class CommandVisitor @JvmOverloads constructor(protected val configManager: ConfigManager, protected val commandDispatcher: CommandDispatcher<ServerCommandSource>, rootNodeName: String = configManager.configName, protected val commandRegistryAccess: CommandRegistryAccess? = null, protected val registrationEnvironment: CommandManager.RegistrationEnvironment? = null) {
 
     protected val configNode: LiteralCommandNode<ServerCommandSource> = CommandManager
         .literal("config")

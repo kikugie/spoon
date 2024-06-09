@@ -15,12 +15,12 @@ import xd.arkosammy.monkeyconfig.util.SettingIdentifier
  * @param [S] The type to use to serialize the elements of this list to and from a config file.
  * will become the type parameter of [ListType], which will be the serialized version of this [ConfigSetting]'s value.
  */
-abstract class ListSetting<E, S : SerializableType<*>>(
+abstract class ListSetting<E, S : SerializableType<*>> @JvmOverloads constructor(
     settingIdentifier: SettingIdentifier, comment: String? = null,
     defaultValue: List<E>,
     value: List<E> = defaultValue) : ConfigSetting<List<E>, ListType<S>>(settingIdentifier, comment, value) {
 
-    abstract class Builder<E, S : SerializableType<*>>(id: SettingIdentifier, comment: String? = null, defaultValue: List<E>) : ConfigSetting.Builder<List<E>, ListType<S>, ListSetting<E, S>>(id, comment, defaultValue) {
+    abstract class Builder<E, S : SerializableType<*>> @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: List<E>) : ConfigSetting.Builder<List<E>, ListType<S>, ListSetting<E, S>>(id, comment, defaultValue) {
 
         abstract override fun build(): ListSetting<E, S>
 

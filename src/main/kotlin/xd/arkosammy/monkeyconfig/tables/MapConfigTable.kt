@@ -8,6 +8,7 @@ import xd.arkosammy.monkeyconfig.types.ListType
 import xd.arkosammy.monkeyconfig.types.SerializableType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
+// TODO: make default implementations of this class for users
 
 /**
  * This implementation
@@ -52,7 +53,7 @@ abstract class MapConfigTable<V : SerializableType<*>>(defaultEntries: List<Conf
     override fun setValues(fileConfig: FileConfig) {
         if(this.tableEntries.isNotEmpty()) {
             for(setting: ConfigSetting<V, V> in this.tableEntries) {
-                val settingAddress: String = "${this.name}.${setting.settingIdentifier.settingName}"
+                val settingAddress = "${this.name}.${setting.settingIdentifier.settingName}"
                 val valueAsSerialized: V = setting.valueAsSerialized
                 fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.listAsFullyDeserialized else valueAsSerialized.value)
             }
@@ -62,6 +63,7 @@ abstract class MapConfigTable<V : SerializableType<*>>(defaultEntries: List<Conf
         }
     }
 
+    // TODO: Make sure this cast always succeeds
     override fun loadValues(fileConfig: FileConfig) {
         val config: Config = fileConfig.get(this.name)
         val tempEntries: MutableList<ConfigSetting<V, V>> = mutableListOf()

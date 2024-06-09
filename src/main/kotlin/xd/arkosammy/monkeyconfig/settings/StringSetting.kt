@@ -8,7 +8,7 @@ import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.types.StringType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-open class StringSetting(
+open class StringSetting @JvmOverloads constructor(
     settingIdentifier: SettingIdentifier,
     comment: String? = null,
     defaultValue: String,
@@ -38,7 +38,7 @@ open class StringSetting(
     override val argumentType: StringArgumentType
         get() = StringArgumentType.string()
 
-    class Builder(id: SettingIdentifier, comment: String? = null, defaultValue: String) : ConfigSetting.Builder<String, StringType, StringSetting>(id, comment, defaultValue) {
+    class Builder @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: String) : ConfigSetting.Builder<String, StringType, StringSetting>(id, comment, defaultValue) {
 
         override fun build(): StringSetting {
             return StringSetting(this.id, this.comment, this.defaultValue)

@@ -5,7 +5,7 @@ import xd.arkosammy.monkeyconfig.types.ListType
 import xd.arkosammy.monkeyconfig.types.StringType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-open class StringListSetting(
+open class StringListSetting @JvmOverloads constructor(
     settingIdentifier: SettingIdentifier,
     comment: String? = null,
     defaultValue: List<String>,
@@ -21,7 +21,7 @@ open class StringListSetting(
         this.value = serializedValue.value.toList().map { e -> e.value }
     }
 
-    class Builder(id: SettingIdentifier, comment: String? = null, defaultValue: List<String>) : ListSetting.Builder<String, StringType>(id, comment, defaultValue) {
+    class Builder @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: List<String>) : ListSetting.Builder<String, StringType>(id, comment, defaultValue) {
 
         override fun build(): StringListSetting {
             return StringListSetting(this.id, this.comment, this.defaultValue)

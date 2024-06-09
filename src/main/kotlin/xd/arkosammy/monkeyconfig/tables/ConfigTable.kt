@@ -90,7 +90,7 @@ interface ConfigTable {
      */
     fun setValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
-            val settingAddress: String = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
+            val settingAddress = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
             val valueAsSerialized: SerializableType<*> = setting.valueAsSerialized
             fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.listAsFullyDeserialized else valueAsSerialized.value)
             setting.comment?.let { comment ->
@@ -111,7 +111,7 @@ interface ConfigTable {
      */
     fun loadValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
-            val settingAddress: String = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
+            val settingAddress = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
             val value: Any = (if(setting is EnumSetting<*>) fileConfig.getEnum(settingAddress, setting.enumClass) ?: setting.defaultValue else fileConfig.getOrElse(settingAddress, setting.defaultValueAsSerialized))!!
             val deserializedValue: SerializableType<*> = toSerializedType(value)
             setValueSafely(setting, deserializedValue)

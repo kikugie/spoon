@@ -11,7 +11,7 @@ import xd.arkosammy.monkeyconfig.types.ListType
 import xd.arkosammy.monkeyconfig.types.NumberType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
-open class BlockPosSetting(
+open class BlockPosSetting @JvmOverloads constructor(
     settingIdentifier: SettingIdentifier,
     comment: String? = null,
     override val defaultValue: BlockPos,
