@@ -6,9 +6,12 @@ import com.electronwill.nightconfig.core.file.FileConfig
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.settings.EnumSetting
 import xd.arkosammy.monkeyconfig.types.*
+import xd.arkosammy.monkeyconfig.managers.ConfigManager
 
 /**
- * Represents a container of config settings useful for grouping related config settings under a common namespace. They can be registered with a config manager to be loaded from and saved to a config file.
+ * Represents a container of config settings useful for grouping related config settings under a common namespace
+ * and for serializing using a [ConfigManager].
+ * They can be registered with a [ConfigManager] to be loaded from and saved to a config file.
  */
 interface ConfigTable {
 
@@ -23,12 +26,14 @@ interface ConfigTable {
     val comment: String?
 
     /**
-     * An immutable view of the config settings in this config table. This property should always return an immutable view of the settings in this table.
+     * The list of [ConfigSetting] instances stored in this [ConfigTable]. This list should ideally be immutable.
      */
     val configSettings: List<ConfigSetting<*, *>>
 
     /**
-     * Whether this table has been registered with a config manager. This method should be set using {@code setAsRegistered()} after initializing the table and adding it to the config manager to prevent further settings from being added.
+     * Whether this table has been registered with a config manager.
+     * This value should be set using [ConfigTable.setAsRegistered] after initializing the table
+     * and adding it to a [ConfigManager] to prevent further settings from being added.
      */
     var isRegistered: Boolean
 
@@ -37,6 +42,12 @@ interface ConfigTable {
      */
     val loadBeforeSave : Boolean
 
+    /**
+     * Whether the [ConfigSetting] instances should be used
+     * to register commands for editing the values of those settings.
+     * Should be `false` if the [ConfigTable]'s [ConfigSetting] instances can change during runtime,
+     * should as with [MapConfigTable]
+     */
     val registerSettingsAsCommands: Boolean
 
     /**
@@ -107,37 +118,6 @@ interface ConfigTable {
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T, V : SerializableType<*>> setValueSafely(setting: ConfigSetting<T, V>, value : SerializableType<*>) {
-        when (value) {
-            is NumberType<*> -> {
-                if(setting.defaultValueAsSerialized is NumberType<*>) {
-                    setting.setFromSerializedValue(value as V)
-                }
-            }
-            is BooleanType -> {
-                if(setting.defaultValueAsSerialized is BooleanType) {
-                    setting.setFromSerializedValue(value as V)
-                }
-            }
-            is EnumType -> {
-                if(setting.defaultValueAsSerialized is EnumType<*>) {
-                    setting.setFromSerializedValue(value as V)
-                }
-            }
-            is ListType<*> -> {
-                if(setting.defaultValueAsSerialized is ListType<*>) {
-                    setting.setFromSerializedValue(value as V)
-                }
-            }
-            is StringType -> {
-                if(setting.defaultValueAsSerialized is StringType) {
-                    setting.setFromSerializedValue(value as V)
-                }
-            }
-        }
-    }
-
     /**
      * Checks whether this table contains a setting with the name [settingName].
      * @return whether this table contains a setting with the name [settingName]
@@ -162,5 +142,42 @@ fun toSerializedType(value: Any): SerializableType<*> {
         is Boolean -> BooleanType(value)
         is Enum<*> -> EnumType(value)
         else -> throw IllegalArgumentException("Unsupported type: ${value::class.simpleName}")
+    }
+}
+
+/**
+ * Attempts to safely assign a [SerializableType] as the value of a [ConfigSetting] by checking the type of [value], and calling [ConfigSetting.setFromSerializedValue] accordingly.
+ *
+ * @param setting The setting to assign a [SerializableType] value to
+ * @param value The [SerializableType] to assign as the value of the [setting]
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T, V : SerializableType<*>> setValueSafely(setting: ConfigSetting<T, V>, value : SerializableType<*>) {
+    when (value) {
+        is NumberType<*> -> {
+            if(setting.defaultValueAsSerialized is NumberType<*>) {
+                setting.setFromSerializedValue(value as V)
+            }
+        }
+        is BooleanType -> {
+            if(setting.defaultValueAsSerialized is BooleanType) {
+                setting.setFromSerializedValue(value as V)
+            }
+        }
+        is EnumType -> {
+            if(setting.defaultValueAsSerialized is EnumType<*>) {
+                setting.setFromSerializedValue(value as V)
+            }
+        }
+        is ListType<*> -> {
+            if(setting.defaultValueAsSerialized is ListType<*>) {
+                setting.setFromSerializedValue(value as V)
+            }
+        }
+        is StringType -> {
+            if(setting.defaultValueAsSerialized is StringType) {
+                setting.setFromSerializedValue(value as V)
+            }
+        }
     }
 }

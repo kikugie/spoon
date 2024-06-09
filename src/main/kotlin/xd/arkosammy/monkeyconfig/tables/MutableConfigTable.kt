@@ -3,6 +3,9 @@ package xd.arkosammy.monkeyconfig.tables
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
+/**
+ * A [ConfigTable] that supports adding and removing [ConfigSetting] instances from it.
+ */
 interface MutableConfigTable : ConfigTable {
 
     /**
@@ -13,7 +16,7 @@ interface MutableConfigTable : ConfigTable {
     /**
      * Removes a [ConfigSetting] from this [ConfigTable] by its [SettingIdentifier].
      *
-     * @return `true` if the setting was removed, `false` otherwise.
+     * @return `true` if the setting was successfully removed, `false` otherwise.
      */
     fun removeConfigSetting(settingId: SettingIdentifier) : Boolean = false
 

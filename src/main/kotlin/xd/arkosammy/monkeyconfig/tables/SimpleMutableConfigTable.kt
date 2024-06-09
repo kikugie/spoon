@@ -6,7 +6,7 @@ open class SimpleMutableConfigTable(
     override val configSettings: MutableList<ConfigSetting<*, *>>,
     name: String, comment: String? = null,
     loadBeforeSave: Boolean = false,
-    registerSettingsAsCommands: Boolean) : AbstractConfigTable(name, comment, loadBeforeSave, registerSettingsAsCommands), MutableConfigTable  {
+    registerSettingsAsCommands: Boolean = true) : AbstractConfigTable(name, comment, loadBeforeSave, registerSettingsAsCommands), MutableConfigTable  {
 
     override fun addConfigSetting(settings: ConfigSetting<*, *>) {
         this.configSettings.add(settings)

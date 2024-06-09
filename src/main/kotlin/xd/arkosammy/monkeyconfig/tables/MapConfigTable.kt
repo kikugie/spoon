@@ -7,7 +7,18 @@ import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.types.ListType
 import xd.arkosammy.monkeyconfig.types.SerializableType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
+import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 
+/**
+ * This implementation
+ * of [ConfigTable] associates each of the [ConfigSetting] instances to its [SettingIdentifier] name.
+ * All [ConfigSetting] instances stored in this table are written to and read from in bulk from the [FileConfig],
+ * thus, it shouldn't be used to create [CommandControllableSetting] instances,
+ * as the entries of this table can change during runtime by editing the config file.
+ *
+ * @param [V] The type of the values that will be written to and read from the [FileConfig].
+ * must be an instance of [SerializableType]
+ */
 abstract class MapConfigTable<V : SerializableType<*>>(defaultEntries: List<ConfigSetting<V, V>>, name: String, comment: String? = null) : AbstractConfigTable(name, comment, true, false) {
 
     override val configSettings: List<ConfigSetting<V, V>>
@@ -16,6 +27,12 @@ abstract class MapConfigTable<V : SerializableType<*>>(defaultEntries: List<Conf
     private var tableEntries: List<ConfigSetting<V, V>> = defaultEntries
     private val defaultTableEntries: List<ConfigSetting<V, V>> = defaultEntries.toList()
 
+    /**
+     * Returns the [SerializableType] instance associated to the [key] parameter.
+     *
+     * @param key The [SettingIdentifier] name of the [ConfigSetting]
+     * @return the [SerializableType] instance if found, or `null` otherwise
+     */
     fun get(key: String) : V? {
         for(entry: ConfigSetting<V, V> in this.tableEntries) {
             if(entry.settingIdentifier.settingName == key) {

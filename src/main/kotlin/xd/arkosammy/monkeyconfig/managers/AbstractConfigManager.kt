@@ -14,6 +14,7 @@ import java.nio.file.Path
 
 /**
  * The default behavior implementation of the [ConfigManager] interface. This class is abstract and should be extended, as it contains the intended behavior of the [ConfigManager] interface.
+ * This class uses an internal [GenericBuilder] for a [FileConfig], which is used to create the configuration file, and to write and read the [ConfigTable] to and from it.
  */
 abstract class AbstractConfigManager : ConfigManager {
 

@@ -9,10 +9,13 @@ import xd.arkosammy.monkeyconfig.settings.list.StringListSetting
 import kotlin.jvm.Throws
 
 /**
- * A class that handles the management of config tables and interacts with an internal [Config] instance to save and load settings from a file.
+ * A class that manages [ConfigTable] and serializes them to a configuration file for use by an external user.
  */
 interface ConfigManager {
 
+    /**
+     * The name of the configuration file used by this [ConfigManager]. It should not include the file suffix.
+     */
     val configName: String
 
     /**
@@ -27,13 +30,15 @@ interface ConfigManager {
      * Will attempt
      * to reload the values of the config settings stored in this config manager from the file if it exists.
      *
-     * @return true if the reload was successful, false if otherwise.
+     * @return `true` if the reload was successful, false if otherwise.
      * A common cause of the reloading failing is due to a missing config file.
      */
     fun reloadFromFile() : Boolean
 
     /**
-     * Will attempt to save the values of the config settings store in this config manager to the config file, or create a new config file if it doesn't exist. If a new config file is created, the config tables in this manager will be reset to their default values.
+     * Will attempt to save the values of the config settings stored in this config manager to the config file,
+     * or create a new config file if it doesn't exist.
+     * If a new config file is created, the config tables in this manager will be reset to their default values.
      */
     fun saveToFile()
 

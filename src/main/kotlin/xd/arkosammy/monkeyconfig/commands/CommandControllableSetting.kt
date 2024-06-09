@@ -13,7 +13,8 @@ import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
 /**
- * Represents an entity that can be controlled via commands. This is used to create command nodes for settings in the command tree.
+ * Represents a setting that can be controlled via commands. This is used to automatically create commands
+ * to edit the values of the implementing [ConfigSetting]s for easier in-game interaction with the configuration file.
  */
 interface CommandControllableSetting<out V : Any, T : ArgumentType<*>> {
 
@@ -28,12 +29,17 @@ interface CommandControllableSetting<out V : Any, T : ArgumentType<*>> {
     val commandIdentifier: SettingIdentifier
 
     /**
-     * TODO: Make this javadoc
+     * Returns a value that corresponds to the argument provided by the user whenever the corresponding [ArgumentCommandNode] node is invoked.
+     *
+     * @param [ctx] The command context provided by the [ArgumentCommandNode] callback
+     * @param [argumentName] The name of the argument as registered in the corresponding [ArgumentCommandNode]
+     *
+     * @return A value that will be used to update the value of the implementing [ConfigSetting]
      */
     fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String) : V
 
     /**
-     * The callback tha will be executed whenever the value of this setting is set via command. By default, it simply retrieves the value and sets it to the setting corresponding to the [commandIdentifier].
+     * The callback that will be executed whenever the value of this setting is set via command. By default, it simply retrieves the value and sets it to the [ConfigSetting] corresponding to the [commandIdentifier].
      */
     val onValueSetCallback: (CommandContext<ServerCommandSource>, ConfigManager) -> Int
         get() = get@{ ctx, configManager ->
