@@ -1,6 +1,7 @@
 package xd.arkosammy.monkeyconfig.tables
 
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
+import xd.arkosammy.monkeyconfig.types.SerializableType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
 /**
@@ -11,7 +12,7 @@ interface MutableConfigTable : ConfigTable {
     /**
      * Adds a [ConfigSetting] to this [ConfigTable].
      */
-    fun addConfigSetting(settings: ConfigSetting<*, *>)
+    fun <T, S : SerializableType<*>> addConfigSetting(setting: ConfigSetting<T, S>)
 
     /**
      * Removes a [ConfigSetting] from this [ConfigTable] by its [SettingIdentifier].

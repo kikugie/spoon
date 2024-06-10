@@ -10,7 +10,12 @@ import net.minecraft.server.command.ServerCommandSource
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 import xd.arkosammy.monkeyconfig.managers.ConfigManager
 
-class DefaultCommandVisitor @JvmOverloads constructor(configManager: ConfigManager, commandDispatcher: CommandDispatcher<ServerCommandSource>, rootNodeName: String = configManager.configName, commandRegistryAccess: CommandRegistryAccess? = null, registrationEnvironment: CommandManager.RegistrationEnvironment? = null) : CommandVisitor(configManager, commandDispatcher, rootNodeName, commandRegistryAccess, registrationEnvironment) {
+class DefaultCommandVisitor @JvmOverloads constructor(
+    configManager: ConfigManager,
+    rootNodeName: String = configManager.configName,
+    commandDispatcher: CommandDispatcher<ServerCommandSource>,
+    commandRegistryAccess: CommandRegistryAccess? = null,
+    registrationEnvironment: CommandManager.RegistrationEnvironment? = null) : AbstractCommandVisitor(configManager, rootNodeName, commandDispatcher, commandRegistryAccess, registrationEnvironment) {
 
     private val configCategories: List<String> = this.configManager.configTables.map { table ->  table.name }.toList()
     private val cachedCategoryNodes: MutableList<LiteralCommandNode<ServerCommandSource>> = mutableListOf()
@@ -42,18 +47,18 @@ class DefaultCommandVisitor @JvmOverloads constructor(configManager: ConfigManag
             .executes { ctx -> commandControllableSetting.onValueGetCallback(ctx, this.configManager) }
             .build()
 
-        val setNode: ArgumentCommandNode<ServerCommandSource, out Any> = CommandManager
+        val setterNode: ArgumentCommandNode<ServerCommandSource, out Any> = CommandManager
             .argument(settingName, commandControllableSetting.argumentType)
             .requires { source -> source.hasPermissionLevel(4) }
             .executes { ctx -> commandControllableSetting.onValueSetCallback(ctx, this.configManager) }
             .build()
 
-        for(node: LiteralCommandNode<ServerCommandSource> in this.cachedCategoryNodes) {
-            if(node.literal != settingCategory) {
+        for(categoryNode: LiteralCommandNode<ServerCommandSource> in this.cachedCategoryNodes) {
+            if(categoryNode.literal != settingCategory) {
                 continue
             }
-            node.addChild(settingNode)
-            settingNode.addChild(setNode)
+            categoryNode.addChild(settingNode)
+            settingNode.addChild(setterNode)
         }
 
     }

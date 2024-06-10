@@ -1,4 +1,4 @@
-package xd.arkosammy.monkeyconfig.tables
+package xd.arkosammy.monkeyconfig.tables.maps
 
 import com.electronwill.nightconfig.core.Config
 import com.electronwill.nightconfig.core.file.CommentedFileConfig
@@ -8,6 +8,10 @@ import xd.arkosammy.monkeyconfig.types.ListType
 import xd.arkosammy.monkeyconfig.types.SerializableType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
+import xd.arkosammy.monkeyconfig.tables.AbstractConfigTable
+import xd.arkosammy.monkeyconfig.tables.toSerializedType
+import xd.arkosammy.monkeyconfig.tables.ConfigTable
+
 // TODO: make default implementations of this class for users
 
 /**
@@ -20,13 +24,13 @@ import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
  * @param [V] The type of the values that will be written to and read from the [FileConfig].
  * must be an instance of [SerializableType]
  */
-abstract class MapConfigTable<V : SerializableType<*>>(defaultEntries: List<ConfigSetting<V, V>>, name: String, comment: String? = null) : AbstractConfigTable(name, comment, true, false) {
+abstract class MapConfigTable<V : SerializableType<*>> @JvmOverloads constructor(defaultEntries: List<ConfigSetting<V, V>>, tableEntries: List<ConfigSetting<V, V>> = defaultEntries, name: String, comment: String? = null) : AbstractConfigTable(name, comment, true, false) {
 
     override val configSettings: List<ConfigSetting<V, V>>
-        get() = tableEntries
+        get() = tableEntries.toList()
 
-    private var tableEntries: List<ConfigSetting<V, V>> = defaultEntries
-    private val defaultTableEntries: List<ConfigSetting<V, V>> = defaultEntries.toList()
+    protected var tableEntries: MutableList<ConfigSetting<V, V>> = tableEntries.toMutableList()
+    protected val defaultTableEntries: List<ConfigSetting<V, V>> = defaultEntries.toList()
 
     /**
      * Returns the [SerializableType] instance associated to the [key] parameter.
@@ -44,9 +48,8 @@ abstract class MapConfigTable<V : SerializableType<*>>(defaultEntries: List<Conf
     }
 
     override fun setDefaultValues(fileConfig: FileConfig) {
-        val tempDefaultEntries: MutableList<ConfigSetting<V, V>> = mutableListOf()
-        tempDefaultEntries.addAll(this.defaultTableEntries)
-        this.tableEntries = tempDefaultEntries.toList()
+        this.tableEntries.clear()
+        this.tableEntries.addAll(this.defaultTableEntries)
         this.setValues(fileConfig)
     }
 
@@ -81,7 +84,8 @@ abstract class MapConfigTable<V : SerializableType<*>>(defaultEntries: List<Conf
             }
             tempEntries.add(setting)
         }
-        this.tableEntries = tempEntries.toList()
+        this.tableEntries.clear()
+        this.tableEntries.addAll(tempEntries)
     }
 
 }

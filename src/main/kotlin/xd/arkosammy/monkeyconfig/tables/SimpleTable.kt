@@ -2,7 +2,7 @@ package xd.arkosammy.monkeyconfig.tables
 
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 
-open class SimpleConfigTable @JvmOverloads constructor(
+open class SimpleTable @JvmOverloads constructor(
     override val configSettings: List<ConfigSetting<*, *>>,
     name: String, comment: String? = null,
     loadBeforeSave: Boolean = false,
