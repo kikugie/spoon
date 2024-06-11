@@ -36,7 +36,7 @@ class CommandControllableEnumSetting<E> @JvmOverloads constructor(
                 return enumConstant
             }
         }
-        throw IllegalArgumentException("Enum constant of type ${this.defaultValue::class.java.simpleName} not found for name $string")
+        throw IllegalArgumentException("Enum constant of type \"${this.defaultValue::class.java.simpleName}\" not found for name \"$string\"")
     }
 
     override fun getSuggestions(ctx: CommandContext<ServerCommandSource>, suggestionsBuilder: SuggestionsBuilder): CompletableFuture<Suggestions> {
