@@ -19,6 +19,13 @@ repositories {
 	// for more information about repositories.
 }
 
+sourceSets {
+	testmod {
+		compileClasspath += main.compileClasspath
+		runtimeClasspath += main.runtimeClasspath
+	}
+}
+
 loom {
     splitEnvironmentSourceSets()
 
@@ -26,6 +33,19 @@ loom {
 		"monkeyconfig" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
+		}
+	}
+
+	runs {
+		testmodClient {
+			client()
+			name = "Testmod Client"
+			source sourceSets.testmod
+		}
+		testmodServer {
+			server()
+			name = "Testmod Server"
+			source sourceSets.testmod
 		}
 	}
 
@@ -44,6 +64,10 @@ dependencies {
 	include(modImplementation "com.electronwill.night-config:json:${project.night_config_version}")
 	include(modImplementation "com.electronwill.night-config:yaml:${project.night_config_version}")
 	include(modImplementation "com.electronwill.night-config:hocon:${project.night_config_version}")
+
+	testmodImplementation(sourceSets.main.output)
+	testmodImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+	testmodRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
 }
 

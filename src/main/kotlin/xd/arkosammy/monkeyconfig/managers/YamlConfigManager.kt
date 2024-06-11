@@ -10,6 +10,6 @@ open class YamlConfigManager : AbstractConfigManager {
 
     constructor(configName: String, configTables: List<ConfigTable>) : super(configName, configTables, YamlFormat.defaultInstance(), FabricLoader.getInstance().configDir.resolve("$configName.yaml"))
 
-    constructor(configName: String, configTables: List<MutableConfigTable>, settingBuilders: List<ConfigSetting.Builder<*, *, *>>) : super(configName, configTables, settingBuilders, YamlFormat.defaultInstance(), FabricLoader.getInstance().configDir.resolve("$configName.yaml"))
+    constructor(configName: String, configTables: List<MutableConfigTable>? = null, settingBuilders: List<ConfigSetting.Builder<*, *, *>>) : super(configName, configTables, settingBuilders, YamlFormat.defaultInstance(), FabricLoader.getInstance().configDir.resolve("$configName.yaml"))
 
 }

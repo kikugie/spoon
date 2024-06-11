@@ -10,6 +10,6 @@ open class TomlConfigManager : AbstractConfigManager {
 
     constructor(configName: String, configTables: List<ConfigTable>) : super(configName, configTables, TomlFormat.instance(), FabricLoader.getInstance().configDir.resolve("$configName.toml"))
 
-    constructor(configName: String, configTables: List<MutableConfigTable>, settingBuilders: List<ConfigSetting.Builder<*, *, *>>) : super(configName, configTables, settingBuilders, TomlFormat.instance(), FabricLoader.getInstance().configDir.resolve("$configName.toml"))
+    constructor(configName: String, configTables: List<MutableConfigTable>? = null, settingBuilders: List<ConfigSetting.Builder<*, *, *>>) : super(configName, configTables, settingBuilders, TomlFormat.instance(), FabricLoader.getInstance().configDir.resolve("$configName.toml"))
 
 }

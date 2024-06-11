@@ -8,6 +8,6 @@ value class ListType<E : SerializableType<*>>(override val value: List<E>) : Ser
      * Represents the [List] stored in this [ListType] instance where each element has been mapped to its actual type.
      * This should be used when writing a [ListType] instance to a [FileConfig]
      */
-    val listAsFullyDeserialized: List<*>
+    val fullyDeserializedValue: List<*>
         get() = this.value.toList().map { e -> e.value }
 }

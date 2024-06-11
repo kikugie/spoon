@@ -20,14 +20,18 @@ abstract class ConfigSetting<T, S : SerializableType<*>> @JvmOverloads construct
     open val defaultValue: T,
     open var value: T = defaultValue) {
 
-    abstract val valueAsSerialized: S
+    abstract val serializedValue: S
 
-    abstract val defaultValueAsSerialized: S
+    abstract val serializedDefaultValue: S
 
-    abstract fun setFromSerializedValue(serializedValue: S)
+    abstract fun setValueFromSerialized(serializedValue: S)
 
     fun resetValue() {
         this.value = this.defaultValue
+    }
+
+    override fun toString(): String {
+        return "${this::class.simpleName}{id=${this.settingIdentifier}, comment=${this.comment ?: "null"}, defaultValue=${this.defaultValue}}, value=${this.value}, serializedType=${this.serializedDefaultValue::class.simpleName}}"
     }
 
     /**
@@ -40,7 +44,7 @@ abstract class ConfigSetting<T, S : SerializableType<*>> @JvmOverloads construct
      * @param [S] The [SerializableType] type which will be used in the resulting [ConfigSetting]
      * @param [T] The type of the resulting [ConfigSetting] instance
      */
-    abstract class Builder<V : Any, S : SerializableType<*>, T : ConfigSetting<V, S>> @JvmOverloads constructor(protected val id: SettingIdentifier, protected var comment: String? = null, protected val defaultValue: V) {
+    abstract class Builder<V : Any, S : SerializableType<*>, T : ConfigSetting<V, S>> @JvmOverloads constructor(val id: SettingIdentifier, protected var comment: String? = null, protected val defaultValue: V) {
 
         val tableName: String
             get() = id.tableName

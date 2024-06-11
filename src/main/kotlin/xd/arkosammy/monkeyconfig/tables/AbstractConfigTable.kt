@@ -13,7 +13,7 @@ abstract class AbstractConfigTable @JvmOverloads constructor(
     }
 
     override fun toString(): String {
-        return name
+        return "${this::class.simpleName}{name=${this.name}, comment=${this.comment ?: "null"}, settingAmount=${this.configSettings.size}, registered=$isRegistered, loadBeforeSave=$loadBeforeSave, registerSettingsAsCommands=$registerSettingsAsCommands}"
     }
 
 }

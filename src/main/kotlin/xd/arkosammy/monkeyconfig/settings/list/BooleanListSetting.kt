@@ -11,13 +11,13 @@ open class BooleanListSetting @JvmOverloads constructor(
     defaultValue: List<Boolean>,
     value: List<Boolean> = defaultValue) : ListSetting<Boolean, BooleanType>(settingIdentifier, comment, defaultValue, value) {
 
-    override val valueAsSerialized: ListType<BooleanType>
+    override val serializedValue: ListType<BooleanType>
         get() = ListType(this.value.toList().map { e -> BooleanType(e) })
 
-    override val defaultValueAsSerialized: ListType<BooleanType>
+    override val serializedDefaultValue: ListType<BooleanType>
         get() = ListType(this.defaultValue.toList().map { e -> BooleanType(e) })
 
-    override fun setFromSerializedValue(serializedValue: ListType<BooleanType>) {
+    override fun setValueFromSerialized(serializedValue: ListType<BooleanType>) {
         this.value = serializedValue.value.toList().map { e -> e.value }
     }
 

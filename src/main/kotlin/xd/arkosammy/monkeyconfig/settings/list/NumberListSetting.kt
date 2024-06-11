@@ -11,13 +11,13 @@ open class NumberListSetting<T : Number> @JvmOverloads constructor(
     defaultValue: List<T>,
     value: List<T> = defaultValue) : ListSetting<T, NumberType<T>>(settingIdentifier, comment, defaultValue, value) {
 
-    override val valueAsSerialized: ListType<NumberType<T>>
+    override val serializedValue: ListType<NumberType<T>>
         get() = ListType(this.value.toList().map { e -> NumberType(e) })
 
-    override val defaultValueAsSerialized: ListType<NumberType<T>>
+    override val serializedDefaultValue: ListType<NumberType<T>>
         get() = ListType(this.defaultValue.toList().map { e -> NumberType(e) })
 
-    override fun setFromSerializedValue(serializedValue: ListType<NumberType<T>>) {
+    override fun setValueFromSerialized(serializedValue: ListType<NumberType<T>>) {
         this.value = serializedValue.value.toList().map { e -> e.value }
     }
 

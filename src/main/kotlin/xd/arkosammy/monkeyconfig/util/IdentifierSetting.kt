@@ -1,4 +1,4 @@
-package xd.arkosammy.monkeyconfig.settings.util
+package xd.arkosammy.monkeyconfig.util
 
 import com.mojang.brigadier.context.CommandContext
 import net.minecraft.command.argument.IdentifierArgumentType
@@ -16,13 +16,13 @@ open class IdentifierSetting @JvmOverloads constructor(
     override val defaultValue: Identifier,
     override var value: Identifier = defaultValue) : ConfigSetting<Identifier, StringType>(settingIdentifier, comment, defaultValue, value), CommandControllableSetting<Identifier, IdentifierArgumentType> {
 
-    override val valueAsSerialized: StringType
+    override val serializedValue: StringType
         get() = StringType(this.value.toString())
 
-    override val defaultValueAsSerialized: StringType
+    override val serializedDefaultValue: StringType
         get() = StringType(this.defaultValue.toString())
 
-    override fun setFromSerializedValue(serializedValue: StringType) {
+    override fun setValueFromSerialized(serializedValue: StringType) {
         this.value = Identifier(serializedValue.value)
     }
 

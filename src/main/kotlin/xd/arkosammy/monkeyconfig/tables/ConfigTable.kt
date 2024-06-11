@@ -91,8 +91,8 @@ interface ConfigTable {
     fun setValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
             val settingAddress = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
-            val valueAsSerialized: SerializableType<*> = setting.valueAsSerialized
-            fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.listAsFullyDeserialized else valueAsSerialized.value)
+            val valueAsSerialized: SerializableType<*> = setting.serializedValue
+            fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.fullyDeserializedValue else valueAsSerialized.value)
             setting.comment?.let { comment ->
                 if(fileConfig is CommentedFileConfig) fileConfig.setComment(settingAddress, comment)
             }
@@ -112,7 +112,7 @@ interface ConfigTable {
     fun loadValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
             val settingAddress = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
-            val value: Any = (if(setting is EnumSetting<*>) fileConfig.getEnum(settingAddress, setting.enumClass) ?: setting.defaultValue else fileConfig.getOrElse(settingAddress, setting.defaultValueAsSerialized))!!
+            val value: Any = (if(setting is EnumSetting<*>) fileConfig.getEnum(settingAddress, setting.enumClass) ?: setting.defaultValue else fileConfig.getOrElse(settingAddress, setting.serializedDefaultValue))!!
             val deserializedValue: SerializableType<*> = toSerializedType(value)
             setValueSafely(setting, deserializedValue)
         }
@@ -141,12 +141,12 @@ fun toSerializedType(value: Any): SerializableType<*> {
         is String -> StringType(value)
         is Boolean -> BooleanType(value)
         is Enum<*> -> EnumType(value)
-        else -> throw IllegalArgumentException("Unsupported type: ${value::class.simpleName}")
+        else -> throw IllegalArgumentException("Type \"${value::class.simpleName}\" cannot be serialized into configuration file")
     }
 }
 
 /**
- * Attempts to safely assign a [SerializableType] as the value of a [ConfigSetting] by checking the type of [value], and calling [ConfigSetting.setFromSerializedValue] accordingly.
+ * Attempts to safely assign a [SerializableType] as the value of a [ConfigSetting] by checking the type of [value], and calling [ConfigSetting.setValueFromSerialized] accordingly.
  *
  * @param setting The setting to assign a [SerializableType] value to
  * @param value The [SerializableType] to assign as the value of the [setting]
@@ -155,28 +155,28 @@ fun toSerializedType(value: Any): SerializableType<*> {
 fun <T, V : SerializableType<*>> setValueSafely(setting: ConfigSetting<T, V>, value : SerializableType<*>) {
     when (value) {
         is NumberType<*> -> {
-            if(setting.defaultValueAsSerialized is NumberType<*>) {
-                setting.setFromSerializedValue(value as V)
+            if(setting.serializedDefaultValue is NumberType<*>) {
+                setting.setValueFromSerialized(value as V)
             }
         }
         is BooleanType -> {
-            if(setting.defaultValueAsSerialized is BooleanType) {
-                setting.setFromSerializedValue(value as V)
+            if(setting.serializedDefaultValue is BooleanType) {
+                setting.setValueFromSerialized(value as V)
             }
         }
         is EnumType -> {
-            if(setting.defaultValueAsSerialized is EnumType<*>) {
-                setting.setFromSerializedValue(value as V)
+            if(setting.serializedDefaultValue is EnumType<*>) {
+                setting.setValueFromSerialized(value as V)
             }
         }
         is ListType<*> -> {
-            if(setting.defaultValueAsSerialized is ListType<*>) {
-                setting.setFromSerializedValue(value as V)
+            if(setting.serializedDefaultValue is ListType<*>) {
+                setting.setValueFromSerialized(value as V)
             }
         }
         is StringType -> {
-            if(setting.defaultValueAsSerialized is StringType) {
-                setting.setFromSerializedValue(value as V)
+            if(setting.serializedDefaultValue is StringType) {
+                setting.setValueFromSerialized(value as V)
             }
         }
     }

@@ -10,7 +10,6 @@ open class HoconConfigManager : AbstractConfigManager {
 
     constructor(configName: String, configTables: List<ConfigTable>) : super(configName, configTables, HoconFormat.instance(), FabricLoader.getInstance().configDir.resolve("$configName.conf"))
 
-    constructor(configName: String, configTables: List<MutableConfigTable>, settingBuilders: List<ConfigSetting.Builder<*, *, *>>) : super(configName, configTables, settingBuilders, HoconFormat.instance(), FabricLoader.getInstance().configDir.resolve("$configName.conf"))
-
+    constructor(configName: String, configTables: List<MutableConfigTable>? = null, settingBuilders: List<ConfigSetting.Builder<*, *, *>>) : super(configName, configTables, settingBuilders, HoconFormat.instance(), FabricLoader.getInstance().configDir.resolve("$configName.conf"))
 
 }

@@ -1,4 +1,4 @@
-package xd.arkosammy.monkeyconfig.settings.util
+package xd.arkosammy.monkeyconfig.util
 
 import com.mojang.brigadier.context.CommandContext
 import net.minecraft.command.argument.BlockPosArgumentType
@@ -17,14 +17,14 @@ open class BlockPosSetting @JvmOverloads constructor(
     override val defaultValue: BlockPos,
     override var value: BlockPos = defaultValue) : ConfigSetting<BlockPos, ListType<NumberType<Int>>>(settingIdentifier, comment, defaultValue, value), CommandControllableSetting<BlockPos, BlockPosArgumentType> {
 
-        override val valueAsSerialized: ListType<NumberType<Int>>
+        override val serializedValue: ListType<NumberType<Int>>
         get() = ListType(listOf(NumberType(this.value.x), NumberType(this.value.y), NumberType(this.value.z)))
 
 
-    override val defaultValueAsSerialized: ListType<NumberType<Int>>
+    override val serializedDefaultValue: ListType<NumberType<Int>>
         get() = ListType(listOf(NumberType(this.defaultValue.x), NumberType(this.defaultValue.y), NumberType(this.defaultValue.z)))
 
-    override fun setFromSerializedValue(serializedValue: ListType<NumberType<Int>>) {
+    override fun setValueFromSerialized(serializedValue: ListType<NumberType<Int>>) {
         this.value = BlockPos(serializedValue.value[0].value, serializedValue.value[1].value, serializedValue.value[2].value)
     }
 

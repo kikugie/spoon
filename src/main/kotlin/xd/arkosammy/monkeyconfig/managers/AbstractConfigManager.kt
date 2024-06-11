@@ -8,7 +8,9 @@ import xd.arkosammy.monkeyconfig.MonkeyConfig
 import xd.arkosammy.monkeyconfig.settings.*
 import xd.arkosammy.monkeyconfig.tables.ConfigTable
 import xd.arkosammy.monkeyconfig.tables.MutableConfigTable
+import xd.arkosammy.monkeyconfig.tables.SimpleMutableTable
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
+import xd.arkosammy.monkeyconfig.tables.SimpleTable
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -60,9 +62,14 @@ abstract class AbstractConfigManager : ConfigManager {
     }
 
     /**
-     * Constructs a new [AbstractConfigManager] with the given [configName], [configTables], and [settingBuilders]. The setting builders are used to create the settings for the config tables. The config tables are then turned to their immutable variation.
+     * Constructs a new [AbstractConfigManager] with the given [configName], [configTables], and [settingBuilders].
+     * The setting builders are used to create the settings for the config tables.
+     * If no [ConfigTable] instances are passed in,
+     * or if a corresponding [ConfigTable] isn't found for one of the [settingBuilders] passed in,
+     * this constructor will automatically create a [SimpleTable] based on the identifiers of the [settingBuilders]
+     * The config tables are then turned to their immutable variation.
      */
-    constructor(configName: String, configTables: List<MutableConfigTable>, settingBuilders: List<ConfigSetting.Builder<*, *, *>>, configFormat: ConfigFormat<*>, configPath: Path) {
+    constructor(configName: String, configTables: List<MutableConfigTable>? = null, settingBuilders: List<ConfigSetting.Builder<*, *, *>>, configFormat: ConfigFormat<*>, configPath: Path) {
         this.configName = configName
         this.configPath = configPath
         this.configBuilder = FileConfig.builder(this.configPath, configFormat)
@@ -72,17 +79,24 @@ abstract class AbstractConfigManager : ConfigManager {
             //.onSave { this.onSave }
             //.onLoad { this.onLoaded }
             //.onAutoReload { this.onAutoReload }
-        for (settingBuilder: ConfigSetting.Builder<*, *, *> in settingBuilders) {
-            val tableName: String = settingBuilder.tableName
-            for (configTable: MutableConfigTable in configTables) {
-                if (configTable.name != tableName) {
+
+        val newTables: MutableList<MutableConfigTable> = configTables?.toMutableList() ?: mutableListOf()
+        for(settingBuilder: ConfigSetting.Builder<*, *, *> in settingBuilders) {
+            val settingTableName: String = settingBuilder.id.tableName
+            // Create a new SimpleTable if a table for this setting builder isn't found
+            if(!newTables.any { table -> table.name == settingTableName}) {
+                val newTable: MutableConfigTable = SimpleMutableTable(mutableListOf(), settingTableName)
+                MonkeyConfig.LOGGER.warn("Found no configuration table for setting: ${settingBuilder.id.settingName}: A new config table will be added to this config manager called $settingTableName")
+                newTables.add(newTable)
+            }
+            for(configTable: MutableConfigTable in newTables) {
+                if(configTable.name != settingTableName) {
                     continue
                 }
                 configTable.addConfigSetting(settingBuilder.build())
-                break
             }
         }
-        this.configTables = configTables.map(MutableConfigTable::toImmutable).toList()
+        this.configTables = newTables.toList().map(MutableConfigTable::toImmutable)
         this.initialize()
     }
 
@@ -179,4 +193,9 @@ abstract class AbstractConfigManager : ConfigManager {
             }
         }
     }
+
+    override fun toString(): String {
+        return "${this::class.simpleName}{name=${this.configName}, path=${this.configPath}, tableAmount=${this.configTables.size}}"
+    }
+
 }

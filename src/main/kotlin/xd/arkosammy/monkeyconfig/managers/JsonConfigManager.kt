@@ -10,6 +10,6 @@ open class JsonConfigManager : AbstractConfigManager {
 
     constructor(configName: String, configTables: List<ConfigTable>) : super(configName, configTables, JsonFormat.fancyInstance(), FabricLoader.getInstance().configDir.resolve("$configName.json"))
 
-    constructor(configName: String, configTables: List<MutableConfigTable>, settingBuilders: List<ConfigSetting.Builder<*, *, *>>) : super(configName, configTables, settingBuilders, JsonFormat.fancyInstance(), FabricLoader.getInstance().configDir.resolve("$configName.json"))
+    constructor(configName: String, configTables: List<MutableConfigTable>? = null, settingBuilders: List<ConfigSetting.Builder<*, *, *>>) : super(configName, configTables, settingBuilders, JsonFormat.fancyInstance(), FabricLoader.getInstance().configDir.resolve("$configName.json"))
 
 }

@@ -12,18 +12,18 @@ open class MutableStringMapTable @JvmOverloads constructor(defaultEntries: Mutab
         get() = this.tableEntries
 
     override fun <T, S : SerializableType<*>> addConfigSetting(setting: ConfigSetting<T, S>) {
-        val newValue = StringType(setting.valueAsSerialized.value.toString())
-        val defaultValue = StringType(setting.defaultValueAsSerialized.value.toString())
+        val newValue = StringType(setting.serializedValue.value.toString())
+        val defaultValue = StringType(setting.serializedDefaultValue.value.toString())
         val newSetting: ConfigSetting<StringType, StringType> = object : ConfigSetting<StringType, StringType>(
             SettingIdentifier(this.name, setting.settingIdentifier.settingName),
             defaultValue = defaultValue,
             value = newValue
         ) {
-            override val valueAsSerialized: StringType
+            override val serializedValue: StringType
                 get() = this.value
-            override val defaultValueAsSerialized: StringType
+            override val serializedDefaultValue: StringType
                 get() = this.defaultValue
-            override fun setFromSerializedValue(serializedValue: StringType) {
+            override fun setValueFromSerialized(serializedValue: StringType) {
                 this.value = serializedValue
             }
 

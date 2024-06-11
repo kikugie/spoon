@@ -7,7 +7,7 @@ import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 /**
  * A [ConfigSetting] which stores a [List] of values.
  * Implementors should feel free to override this class and provide a version that exposes a [MutableList] if necessary.
- * Implementors should keep in mind that when overriding [ConfigSetting.setFromSerializedValue],
+ * Implementors should keep in mind that when overriding [ConfigSetting.setValueFromSerialized],
  * the input [SerializableType] type instance will be a [ListType] whose elements are also of a [SerializableType],
  * so you must manually convert each element of the [ListType] back to the actual type.
  *

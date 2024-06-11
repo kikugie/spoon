@@ -34,14 +34,14 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
             super.value = value
         }
 
-    override fun setFromSerializedValue(serializedValue: NumberType<T>) {
+    override fun setValueFromSerialized(serializedValue: NumberType<T>) {
         this.value = serializedValue.value
     }
 
-    override val valueAsSerialized: NumberType<T>
+    override val serializedValue: NumberType<T>
         get() = NumberType(this.value)
 
-    override val defaultValueAsSerialized: NumberType<T>
+    override val serializedDefaultValue: NumberType<T>
         get() = NumberType(this.defaultValue)
 
     override val argumentType: ArgumentType<T>
@@ -97,6 +97,10 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
 
     override fun accept(visitor: CommandVisitor) {
         visitor.visit(this)
+    }
+
+    override fun toString(): String {
+        return "${this::class.simpleName}{numType=${this.value::class.simpleName}, id=${this.settingIdentifier}, comment=${this.comment ?: "null"}, defaultValue=${this.defaultValue}}, value=${this.value}, serializedType=${this.serializedDefaultValue::class.simpleName}, lowerBound=${this.lowerBound ?: "null"}, upperBound=${this.upperBound ?: "null"}}"
     }
 
     class Builder<T : Number> @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: T) : ConfigSetting.Builder<T, NumberType<T>, NumberSetting<T>>(id, comment, defaultValue) {

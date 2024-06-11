@@ -57,8 +57,8 @@ abstract class MapConfigTable<V : SerializableType<*>> @JvmOverloads constructor
         if(this.tableEntries.isNotEmpty()) {
             for(setting: ConfigSetting<V, V> in this.tableEntries) {
                 val settingAddress = "${this.name}.${setting.settingIdentifier.settingName}"
-                val valueAsSerialized: V = setting.valueAsSerialized
-                fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.listAsFullyDeserialized else valueAsSerialized.value)
+                val valueAsSerialized: V = setting.serializedValue
+                fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.fullyDeserializedValue else valueAsSerialized.value)
             }
         }
         this.comment?.let { comment ->
@@ -74,11 +74,11 @@ abstract class MapConfigTable<V : SerializableType<*>> @JvmOverloads constructor
             val readValue: Any = entry.getValue()
             val deserializedValue: SerializableType<*> = toSerializedType(readValue)
             val setting: ConfigSetting<V, V> = object : ConfigSetting<V, V>(SettingIdentifier(this.name, entry.key), defaultValue = deserializedValue as V) {
-                override val valueAsSerialized: V
+                override val serializedValue: V
                     get() = this.value
-                override val defaultValueAsSerialized: V
+                override val serializedDefaultValue: V
                     get() = this.defaultValue
-                override fun setFromSerializedValue(serializedValue: V) {
+                override fun setValueFromSerialized(serializedValue: V) {
                     this.value = serializedValue
                 }
             }

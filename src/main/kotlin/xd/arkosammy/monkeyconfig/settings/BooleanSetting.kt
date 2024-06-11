@@ -21,20 +21,19 @@ open class BooleanSetting @JvmOverloads constructor(
         return BoolArgumentType.getBool(ctx, argumentName)
     }
 
-    override val valueAsSerialized: BooleanType
+    override val serializedValue: BooleanType
         get() = BooleanType(this.value)
 
-    override val defaultValueAsSerialized: BooleanType
+    override val serializedDefaultValue: BooleanType
         get() = BooleanType(this.defaultValue)
 
-    override fun setFromSerializedValue(serializedValue: BooleanType) {
+    override fun setValueFromSerialized(serializedValue: BooleanType) {
         this.value = serializedValue.value
     }
 
     override fun accept(visitor: CommandVisitor) {
         visitor.visit(this)
     }
-
 
     override val argumentType : BoolArgumentType
         get() = BoolArgumentType.bool()

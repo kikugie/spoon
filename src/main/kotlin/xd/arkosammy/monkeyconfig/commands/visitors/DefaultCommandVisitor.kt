@@ -50,6 +50,7 @@ class DefaultCommandVisitor @JvmOverloads constructor(
         val setterNode: ArgumentCommandNode<ServerCommandSource, out Any> = CommandManager
             .argument(settingName, commandControllableSetting.argumentType)
             .requires { source -> source.hasPermissionLevel(4) }
+            .suggests { ctx, suggestionsBuilder -> commandControllableSetting.getSuggestions(ctx, suggestionsBuilder) }
             .executes { ctx -> commandControllableSetting.onValueSetCallback(ctx, this.configManager) }
             .build()
 

@@ -3,14 +3,20 @@ package xd.arkosammy.monkeyconfig.commands
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.suggestion.SuggestionProvider
+import com.mojang.brigadier.suggestion.Suggestions
+import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.Text
 import com.mojang.brigadier.tree.ArgumentCommandNode
+import net.minecraft.command.suggestion.SuggestionProviders
+import org.apache.logging.log4j.core.jmx.Server
 import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.managers.ConfigManager
 import xd.arkosammy.monkeyconfig.managers.getTypedSetting
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
+import java.util.concurrent.CompletableFuture
 
 /**
  * Represents a setting that can be controlled via commands. This is used to automatically create commands
@@ -37,6 +43,11 @@ interface CommandControllableSetting<out V : Any, T : ArgumentType<*>> {
      * @return A value that will be used to update the value of the implementing [ConfigSetting]
      */
     fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String) : V
+
+    // TODO: Document
+    fun getSuggestions(ctx: CommandContext<ServerCommandSource>, suggestionsBuilder: SuggestionsBuilder) : CompletableFuture<Suggestions> {
+        return this.argumentType.listSuggestions(ctx, suggestionsBuilder)
+    }
 
     /**
      * The callback that will be executed whenever the value of this setting is set via command. By default, it simply retrieves the value and sets it to the [ConfigSetting] corresponding to the [commandIdentifier].

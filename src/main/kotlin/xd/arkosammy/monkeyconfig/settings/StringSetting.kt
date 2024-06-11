@@ -14,13 +14,13 @@ open class StringSetting @JvmOverloads constructor(
     defaultValue: String,
     value: String = defaultValue) : ConfigSetting<String, StringType>(settingIdentifier, comment, value), CommandControllableSetting<String, StringArgumentType> {
 
-    override val valueAsSerialized: StringType
+    override val serializedValue: StringType
         get() = StringType(this.value)
 
-    override val defaultValueAsSerialized: StringType
+    override val serializedDefaultValue: StringType
         get() = StringType(this.defaultValue)
 
-    override fun setFromSerializedValue(serializedValue: StringType) {
+    override fun setValueFromSerialized(serializedValue: StringType) {
         this.value = serializedValue.value
     }
 
