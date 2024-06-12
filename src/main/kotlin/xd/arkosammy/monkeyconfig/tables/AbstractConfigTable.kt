@@ -6,10 +6,12 @@ abstract class AbstractConfigTable @JvmOverloads constructor(
     override val loadBeforeSave: Boolean = false,
     override val registerSettingsAsCommands: Boolean) : ConfigTable {
 
-    override var isRegistered: Boolean = false
+    protected var _isRegistered: Boolean = false
+    override val isRegistered: Boolean
+        get() = this._isRegistered
 
     override fun setAsRegistered() {
-        this.isRegistered = true
+        this._isRegistered = true
     }
 
     override fun toString(): String {

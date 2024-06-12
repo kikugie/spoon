@@ -5,9 +5,9 @@ import com.mojang.brigadier.context.CommandContext
 import net.minecraft.server.command.ServerCommandSource
 import xd.arkosammy.monkeyconfig.MonkeyConfig
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
-import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.types.NumberType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
+import kotlin.jvm.Throws
 import kotlin.math.max
 import kotlin.math.min
 
@@ -26,7 +26,6 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
                 MonkeyConfig.LOGGER.error("Value $value for setting ${this.settingIdentifier} is below the lower bound!")
                 return
             }
-
             if (this.upperBound != null && value > this.upperBound) {
                 MonkeyConfig.LOGGER.error("Value $value for setting ${this.settingIdentifier} is above the upper bound!")
                 return
@@ -38,6 +37,9 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
         this.value = serializedValue.value
     }
 
+    override val commandIdentifier: SettingIdentifier
+        get() = settingIdentifier
+
     override val serializedValue: NumberType<T>
         get() = NumberType(this.value)
 
@@ -45,47 +47,60 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
         get() = NumberType(this.defaultValue)
 
     override val argumentType: ArgumentType<T>
-        @Suppress("UNCHECKED_CAST")
-        get() {
-            if (lowerBound != null) {
-                if(upperBound != null) {
-                    return when (this.defaultValue) {
-                        is Byte -> IntegerArgumentType.integer(max(Byte.MIN_VALUE.toInt(), lowerBound.toInt()), min(Byte.MAX_VALUE.toInt(), upperBound.toInt())) as ArgumentType<T>
-                        is Short -> IntegerArgumentType.integer(max(Short.MIN_VALUE.toInt(), lowerBound.toInt()), min(Short.MAX_VALUE.toInt(), upperBound.toInt())) as ArgumentType<T>
-                        is Int -> IntegerArgumentType.integer(max(Int.MIN_VALUE, lowerBound.toInt()), min(Int.MAX_VALUE, upperBound.toInt())) as ArgumentType<T>
-                        is Long -> LongArgumentType.longArg(max(Long.MIN_VALUE, lowerBound.toLong()), min(Long.MAX_VALUE, upperBound.toLong())) as ArgumentType<T>
-                        is Float -> FloatArgumentType.floatArg(max(Float.MIN_VALUE, lowerBound.toFloat()), min(Float.MAX_VALUE, upperBound.toFloat())) as ArgumentType<T>
-                        is Double -> DoubleArgumentType.doubleArg(max(Double.MIN_VALUE, lowerBound.toDouble()), min(Double.MAX_VALUE, upperBound.toDouble())) as ArgumentType<T>
-                        else -> throw IllegalArgumentException("Unsupported number type: ${this.defaultValue::class.java}")
-                    }
-                } else {
-                    return when (this.defaultValue) {
-                        is Byte -> IntegerArgumentType.integer(max(Byte.MIN_VALUE.toInt(), lowerBound.toInt()), Byte.MAX_VALUE.toInt()) as ArgumentType<T>
-                        is Short -> IntegerArgumentType.integer(max(Short.MIN_VALUE.toInt(), lowerBound.toInt()), Short.MAX_VALUE.toInt()) as ArgumentType<T>
-                        is Int -> IntegerArgumentType.integer(max(Int.MIN_VALUE, lowerBound.toInt())) as ArgumentType<T>
-                        is Long -> LongArgumentType.longArg(max(Long.MIN_VALUE, lowerBound.toLong())) as ArgumentType<T>
-                        is Float -> FloatArgumentType.floatArg(max(Float.MIN_VALUE, lowerBound.toFloat())) as ArgumentType<T>
-                        is Double -> DoubleArgumentType.doubleArg(max(Double.MIN_VALUE, lowerBound.toDouble())) as ArgumentType<T>
-                        else -> throw IllegalArgumentException("Unsupported number type: ${this.defaultValue::class.java}")
-                    }
-                }
-            }
-            return when (this.defaultValue) {
-                is Byte -> IntegerArgumentType.integer(Byte.MIN_VALUE.toInt(), Byte.MAX_VALUE.toInt()) as ArgumentType<T>
-                is Short -> IntegerArgumentType.integer(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()) as ArgumentType<T>
-                is Int -> IntegerArgumentType.integer() as ArgumentType<T>
-                is Long -> LongArgumentType.longArg() as ArgumentType<T>
-                is Float -> FloatArgumentType.floatArg() as ArgumentType<T>
-                is Double -> DoubleArgumentType.doubleArg() as ArgumentType<T>
-                else -> throw IllegalArgumentException("Unsupported number type: ${this.defaultValue::class.java}")
-            }
+        @Throws(IllegalArgumentException::class)
+        get() = when (this.defaultValue) {
+            is Byte -> getIntegerArgumentType()
+            is Short -> getIntegerArgumentType()
+            is Int -> getIntegerArgumentType()
+            is Long -> getLongArgumentType()
+            is Float -> getFloatArgumentType()
+            is Double -> getDoubleArgumentType()
+            else -> throw IllegalArgumentException("Unsupported number type: ${this.defaultValue::class.java}")
         }
 
-    override val commandIdentifier: SettingIdentifier
-        get() = settingIdentifier
+    // The following unsafe cast operations in the getNumArgumentType methods are done under the assumption
+    // that the primitive type parameter of this object can provide a corresponding ArgumentType<T>,
+    // where T is one of the numerical data types.
+    // The numerical argument types such as IntegerArgumentType are also assumed to implement ArgumentType<Integer> directly.
+    // For example, if the type parameter of this class is Double,
+    // then the branch taken in this method should result in a DoubleArgumentType being returned.
+    // DoubleArgumentType implements ArgumentType<Double>, so the cast should be successful.
+    @Suppress("UNCHECKED_CAST")
+    private fun getIntegerArgumentType(): ArgumentType<T> {
+        val min = max(Byte.MIN_VALUE.toInt(), lowerBound?.toInt() ?: Byte.MIN_VALUE.toInt())
+        val max = min(Byte.MAX_VALUE.toInt(), upperBound?.toInt() ?: Byte.MAX_VALUE.toInt())
+        return IntegerArgumentType.integer(min, max) as ArgumentType<T>
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun getLongArgumentType(): ArgumentType<T> {
+        val min = max(Long.MIN_VALUE, lowerBound?.toLong() ?: Long.MIN_VALUE)
+        val max = min(Long.MAX_VALUE, upperBound?.toLong() ?: Long.MAX_VALUE)
+        return LongArgumentType.longArg(min, max) as ArgumentType<T>
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun getFloatArgumentType(): ArgumentType<T> {
+        val min = max(Float.MIN_VALUE, lowerBound?.toFloat() ?: Float.MIN_VALUE)
+        val max = min(Float.MAX_VALUE, upperBound?.toFloat() ?: Float.MAX_VALUE)
+        return FloatArgumentType.floatArg(min, max) as ArgumentType<T>
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun getDoubleArgumentType(): ArgumentType<T> {
+        val min = max(Double.MIN_VALUE, lowerBound?.toDouble() ?: Double.MIN_VALUE)
+        val max = min(Double.MAX_VALUE, upperBound?.toDouble() ?: Double.MAX_VALUE)
+        return DoubleArgumentType.doubleArg(min, max) as ArgumentType<T>
+    }
 
     // TODO: Test this
+    @Suppress("UNCHECKED_CAST")
     override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): T {
+        // The following unsafe cast operations are done under the assumption
+        // that the type parameter of this object matches the argument type provided by this instance.
+        // For example, a NumberSetting<Int> should return an IntegerArgumentType.
+        // Similarly, this method should retrieve the argument value by using the IntegerArgumentType,
+        // which will return an integer, which should be safely casted to Int
         return when (this.defaultValue) {
             is Byte, is Short, is Int -> IntegerArgumentType.getInteger(ctx, argumentName) as T
             is Long -> LongArgumentType.getLong(ctx, argumentName) as T
@@ -93,10 +108,6 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
             is Double -> DoubleArgumentType.getDouble(ctx, argumentName) as T
             else -> throw IllegalArgumentException("Unsupported number type: ${this.defaultValue::class.java}")
         }
-    }
-
-    override fun accept(visitor: CommandVisitor) {
-        visitor.visit(this)
     }
 
     override fun toString(): String {

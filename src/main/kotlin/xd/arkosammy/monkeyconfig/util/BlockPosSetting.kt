@@ -5,11 +5,9 @@ import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.math.BlockPos
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
-import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.types.ListType
 import xd.arkosammy.monkeyconfig.types.NumberType
-import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
 open class BlockPosSetting @JvmOverloads constructor(
     settingIdentifier: SettingIdentifier,
@@ -17,9 +15,8 @@ open class BlockPosSetting @JvmOverloads constructor(
     override val defaultValue: BlockPos,
     override var value: BlockPos = defaultValue) : ConfigSetting<BlockPos, ListType<NumberType<Int>>>(settingIdentifier, comment, defaultValue, value), CommandControllableSetting<BlockPos, BlockPosArgumentType> {
 
-        override val serializedValue: ListType<NumberType<Int>>
+    override val serializedValue: ListType<NumberType<Int>>
         get() = ListType(listOf(NumberType(this.value.x), NumberType(this.value.y), NumberType(this.value.z)))
-
 
     override val serializedDefaultValue: ListType<NumberType<Int>>
         get() = ListType(listOf(NumberType(this.defaultValue.x), NumberType(this.defaultValue.y), NumberType(this.defaultValue.z)))
@@ -38,7 +35,4 @@ open class BlockPosSetting @JvmOverloads constructor(
         return BlockPosArgumentType.getBlockPos(ctx, argumentName)
     }
 
-    override fun accept(visitor: CommandVisitor) {
-        visitor.visit(this)
-    }
 }

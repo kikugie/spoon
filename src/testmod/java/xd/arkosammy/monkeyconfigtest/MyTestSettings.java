@@ -2,11 +2,9 @@ package xd.arkosammy.monkeyconfigtest;
 
 import xd.arkosammy.monkeyconfig.settings.CommandControllableEnumSetting;
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting;
-import xd.arkosammy.monkeyconfig.settings.EnumSetting;
 import xd.arkosammy.monkeyconfig.settings.NumberSetting;
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,9 +16,7 @@ public enum MyTestSettings {
     private final ConfigSetting.Builder<?, ?, ?> builder;
 
     MyTestSettings(ConfigSetting.Builder<?, ?, ?> builder){
-
         this.builder = builder;
-
     }
 
     public static List<ConfigSetting.Builder<?, ?, ?>> getBuilders() {

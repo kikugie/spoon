@@ -5,10 +5,8 @@ import net.minecraft.command.argument.IdentifierArgumentType
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.Identifier
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
-import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.types.StringType
-import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
 open class IdentifierSetting @JvmOverloads constructor(
     settingIdentifier: SettingIdentifier,
@@ -34,10 +32,6 @@ open class IdentifierSetting @JvmOverloads constructor(
 
     override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): Identifier {
         return IdentifierArgumentType.getIdentifier(ctx, argumentName)
-    }
-
-    override fun accept(visitor: CommandVisitor) {
-        visitor.visit(this)
     }
 
 }

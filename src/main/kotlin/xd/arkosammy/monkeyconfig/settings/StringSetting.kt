@@ -4,7 +4,6 @@ import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.minecraft.server.command.ServerCommandSource
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
-import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.types.StringType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
@@ -29,10 +28,6 @@ open class StringSetting @JvmOverloads constructor(
 
     override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): String {
         return StringArgumentType.getString(ctx, argumentName)
-    }
-
-    override fun accept(visitor: CommandVisitor) {
-        visitor.visit(this)
     }
 
     override val argumentType: StringArgumentType

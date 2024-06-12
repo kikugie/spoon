@@ -2,14 +2,12 @@ package xd.arkosammy.monkeyconfig.settings
 
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.command.CommandSource
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.StringIdentifiable
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
-import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.types.EnumType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 import java.util.*
@@ -31,9 +29,9 @@ class CommandControllableEnumSetting<E> @JvmOverloads constructor(
     @Throws(IllegalArgumentException::class)
     override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): E {
         val string: String = StringArgumentType.getString(ctx, argumentName)
-        for(enumConstant: E in this.defaultValue::class.java.enumConstants) {
-            if(enumConstant.asString() == string){
-                return enumConstant
+        this.defaultValue::class.java.enumConstants.forEach { enumInstance ->
+            if(enumInstance.asString() == string) {
+                return enumInstance
             }
         }
         throw IllegalArgumentException("Enum constant of type \"${this.defaultValue::class.java.simpleName}\" not found for name \"$string\"")
@@ -46,10 +44,6 @@ class CommandControllableEnumSetting<E> @JvmOverloads constructor(
                 .collect(Collectors.toList()),
                 suggestionsBuilder
         )
-    }
-
-    override fun accept(visitor: CommandVisitor) {
-        visitor.visit(this)
     }
 
     open class Builder<E> @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: E) : ConfigSetting.Builder<E, EnumType<E>, EnumSetting<E>>(id, comment, defaultValue) where E : Enum<E>, E : StringIdentifiable {

@@ -7,6 +7,7 @@ import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.settings.EnumSetting
 import xd.arkosammy.monkeyconfig.types.*
 import xd.arkosammy.monkeyconfig.managers.ConfigManager
+import xd.arkosammy.monkeyconfig.tables.maps.MapConfigTable
 
 /**
  * Represents a container of config settings useful for grouping related config settings under a common namespace
@@ -35,7 +36,7 @@ interface ConfigTable {
      * This value should be set using [ConfigTable.setAsRegistered] after initializing the table
      * and adding it to a [ConfigManager] to prevent further settings from being added.
      */
-    var isRegistered: Boolean
+    val isRegistered: Boolean
 
     /**
      * Whether this table should be loaded before being saved to file. This is useful for tables whose values should be updated in memory before being written to the config file again
@@ -84,17 +85,17 @@ interface ConfigTable {
     }
 
     /**
-     * Writes the current values of the settings in this table to {@code fileConfig}.
+     * Writes the current values of the settings in this table to [fileConfig].
      *
      * @param fileConfig The [CommentedFileConfig] instance to which to write the values of the settings to
      */
     fun setValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
-            val settingAddress = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
+            val settingLocation = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
             val valueAsSerialized: SerializableType<*> = setting.serializedValue
-            fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.fullyDeserializedValue else valueAsSerialized.value)
+            fileConfig.set<Any>(settingLocation, if(valueAsSerialized is ListType<*>) valueAsSerialized.fullyDeserializedList else valueAsSerialized.value)
             setting.comment?.let { comment ->
-                if(fileConfig is CommentedFileConfig) fileConfig.setComment(settingAddress, comment)
+                if(fileConfig is CommentedFileConfig) fileConfig.setComment(settingLocation, comment)
             }
         }
         this.comment?.let { comment ->
@@ -141,7 +142,7 @@ fun toSerializedType(value: Any): SerializableType<*> {
         is String -> StringType(value)
         is Boolean -> BooleanType(value)
         is Enum<*> -> EnumType(value)
-        else -> throw IllegalArgumentException("Type \"${value::class.simpleName}\" cannot be serialized into configuration file")
+        else -> throw IllegalArgumentException("Value $value of type \"${value::class.simpleName}\" cannot be converted to an instance of SerializableType")
     }
 }
 

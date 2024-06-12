@@ -4,7 +4,7 @@ import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.tables.MutableConfigTable
 import xd.arkosammy.monkeyconfig.types.SerializableType
 
-interface MutableMapConfigTable<V : SerializableType<*>> : MutableConfigTable {
+interface MutableMapConfigTable<V : SerializableType<*>> : MapConfigTable<V>, MutableConfigTable {
 
     override val configSettings: MutableList<ConfigSetting<V, V>>
 

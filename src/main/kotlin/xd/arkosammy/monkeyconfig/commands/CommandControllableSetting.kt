@@ -3,14 +3,11 @@ package xd.arkosammy.monkeyconfig.commands
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.Text
 import com.mojang.brigadier.tree.ArgumentCommandNode
-import net.minecraft.command.suggestion.SuggestionProviders
-import org.apache.logging.log4j.core.jmx.Server
 import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.managers.ConfigManager
 import xd.arkosammy.monkeyconfig.managers.getTypedSetting
@@ -77,6 +74,8 @@ interface CommandControllableSetting<out V : Any, T : ArgumentType<*>> {
             return@get Command.SINGLE_SUCCESS
         }
 
-    fun accept(visitor: CommandVisitor)
+    fun accept(visitor: CommandVisitor) {
+        visitor.visit(this)
+    }
 
 }

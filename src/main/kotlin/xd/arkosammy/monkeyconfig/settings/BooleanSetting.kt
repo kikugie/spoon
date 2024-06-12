@@ -4,7 +4,6 @@ import com.mojang.brigadier.arguments.BoolArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.minecraft.server.command.ServerCommandSource
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
-import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.types.BooleanType
 import xd.arkosammy.monkeyconfig.util.SettingIdentifier
 
@@ -29,10 +28,6 @@ open class BooleanSetting @JvmOverloads constructor(
 
     override fun setValueFromSerialized(serializedValue: BooleanType) {
         this.value = serializedValue.value
-    }
-
-    override fun accept(visitor: CommandVisitor) {
-        visitor.visit(this)
     }
 
     override val argumentType : BoolArgumentType

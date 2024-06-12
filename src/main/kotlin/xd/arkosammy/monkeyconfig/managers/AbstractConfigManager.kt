@@ -23,7 +23,7 @@ abstract class AbstractConfigManager : ConfigManager {
     final override val configTables: List<ConfigTable>
     final override val configName: String
     protected val configBuilder: GenericBuilder<out Config, out FileConfig>
-    protected val configPath: Path
+    protected val configFilePath: Path
     // TODO: This is not being called
     /*
     protected open val onAutoReload: () -> Unit
@@ -49,8 +49,8 @@ abstract class AbstractConfigManager : ConfigManager {
      */
     constructor(configName: String, configTables: List<ConfigTable>, configFormat: ConfigFormat<*>, configPath: Path) {
         this.configName = configName
-        this.configPath = configPath
-        this.configBuilder = FileConfig.builder(this.configPath, configFormat)
+        this.configFilePath = configPath
+        this.configBuilder = FileConfig.builder(this.configFilePath, configFormat)
             .preserveInsertionOrder()
             //.autoreload()
             .sync()
@@ -71,8 +71,8 @@ abstract class AbstractConfigManager : ConfigManager {
      */
     constructor(configName: String, configTables: List<MutableConfigTable>? = null, settingBuilders: List<ConfigSetting.Builder<*, *, *>>, configFormat: ConfigFormat<*>, configPath: Path) {
         this.configName = configName
-        this.configPath = configPath
-        this.configBuilder = FileConfig.builder(this.configPath, configFormat)
+        this.configFilePath = configPath
+        this.configBuilder = FileConfig.builder(this.configFilePath, configFormat)
             .preserveInsertionOrder()
             //.autoreload()
             .sync()
@@ -86,7 +86,7 @@ abstract class AbstractConfigManager : ConfigManager {
             // Create a new SimpleTable if a table for this setting builder isn't found
             if(!newTables.any { table -> table.name == settingTableName}) {
                 val newTable: MutableConfigTable = SimpleMutableTable(mutableListOf(), settingTableName)
-                MonkeyConfig.LOGGER.warn("Found no configuration table for setting: ${settingBuilder.id.settingName}: A new config table will be added to this config manager called $settingTableName")
+                MonkeyConfig.LOGGER.warn("Found no configuration table for setting: ${settingBuilder.id.settingName}: A new config table named $settingTableName will be added to this ${this::class.simpleName} with name ${this.configName}")
                 newTables.add(newTable)
             }
             for(configTable: MutableConfigTable in newTables) {
@@ -110,7 +110,7 @@ abstract class AbstractConfigManager : ConfigManager {
             this.configTables.forEach { table -> table.loadValues(fileConfig) }
             this.configTables.forEach(ConfigTable::onLoaded)
             this.saveToFile()
-            MonkeyConfig.LOGGER.info("Found existing configuration file. Loaded values from ${this.configPath}")
+            MonkeyConfig.LOGGER.info("Found existing configuration file for ${this::class.simpleName} with name ${this.configName}. Loaded values from ${this.configFilePath}")
             return@ifConfigPresent true
         }
 
@@ -154,6 +154,9 @@ abstract class AbstractConfigManager : ConfigManager {
             if (configTable.name != tableName) {
                 continue
             }
+            // The following unsafe cast is done safely using the Class#isInstance method.
+            // This checks for whether the current setting is an instance of the settingClass parameter,
+            // which determines the type of the setting that the caller wants to retrieve
             for (setting: ConfigSetting<*, *> in configTable.configSettings) {
                 if (!settingClass.isInstance(setting) || setting.settingIdentifier.settingName != settingName) {
                     continue
@@ -165,12 +168,12 @@ abstract class AbstractConfigManager : ConfigManager {
     }
 
     protected fun ifConfigPresent(fileConfigFunction: (FileConfig) -> Boolean): Boolean {
-        val fileExists: Boolean = Files.exists(this.configPath)
+        val fileExists: Boolean = Files.exists(this.configFilePath)
         return this.configBuilder.build().use { fileConfig ->
             if(fileExists) {
                 return@ifConfigPresent fileConfigFunction(fileConfig ?: return@ifConfigPresent false)
             } else {
-                MonkeyConfig.LOGGER.warn("Found no preexisting configuration file to load values from. Creating a new configuration file at ${this.configPath}")
+                MonkeyConfig.LOGGER.warn("Found no preexisting configuration file to load values from. Creating a new configuration file at ${this.configFilePath}")
                 this.createNewConfigFile(fileConfig)
                 false
             }
@@ -184,7 +187,7 @@ abstract class AbstractConfigManager : ConfigManager {
 
     private fun checkForSettingNameUniqueness() {
         val settingNames: MutableSet<String> = mutableSetOf()
-        for (configTable: ConfigTable in this.configTables) {
+        this.configTables.forEach { configTable ->
             for (setting: ConfigSetting<*, *> in configTable.configSettings) {
                 if (settingNames.contains(setting.settingIdentifier.settingName)) {
                     throw IllegalArgumentException("Setting name ${setting.settingIdentifier} is not unique")
@@ -195,7 +198,7 @@ abstract class AbstractConfigManager : ConfigManager {
     }
 
     override fun toString(): String {
-        return "${this::class.simpleName}{name=${this.configName}, path=${this.configPath}, tableAmount=${this.configTables.size}}"
+        return "${this::class.simpleName}{name=${this.configName}, path=${this.configFilePath}, tableAmount=${this.configTables.size}}"
     }
 
 }
