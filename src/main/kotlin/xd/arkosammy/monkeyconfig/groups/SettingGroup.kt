@@ -1,5 +1,6 @@
 package xd.arkosammy.monkeyconfig.groups
 
+import com.electronwill.nightconfig.core.Config
 import com.electronwill.nightconfig.core.file.CommentedFileConfig
 import com.electronwill.nightconfig.core.file.FileConfig
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
@@ -102,7 +103,7 @@ interface SettingGroup {
         this.comment?.let { comment ->
             if(fileConfig is CommentedFileConfig) fileConfig.setComment(this.name, comment)
         }
-        val configSection: FileConfig = fileConfig.get(this.name)
+        val configSection: Config = fileConfig.get(this.name)
         configSection.entrySet().removeIf { entry -> !this.containsSettingName(entry.key)}
     }
 
@@ -114,11 +115,11 @@ interface SettingGroup {
     fun loadValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
             val settingLocation = "${setting.settingLocation.groupName}.${setting.settingLocation.settingName}"
-            val defaultSerializedValue: SerializableType<*> = setting.serializedDefaultValue
+            val defaultDeserializedValue: Any = setting.serializedDefaultValue.value
             val rawValue: Any = if (setting is EnumSetting<*>) {
-                fileConfig.getEnum(settingLocation, setting.enumClass) ?: defaultSerializedValue
+                fileConfig.getEnum(settingLocation, setting.enumClass) ?: defaultDeserializedValue
             } else {
-                fileConfig.getOrElse(settingLocation, defaultSerializedValue) ?: defaultSerializedValue
+                fileConfig.getOrElse(settingLocation, defaultDeserializedValue) ?: defaultDeserializedValue
             }
             val deserializedValue: SerializableType<*> = toSerializedType(rawValue)
             setValueSafely(setting, deserializedValue)
