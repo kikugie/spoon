@@ -9,10 +9,10 @@ import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.types.StringType
 
 open class IdentifierSetting @JvmOverloads constructor(
-    settingIdentifier: SettingIdentifier,
+    settingLocation: SettingLocation,
     comment: String? = null,
     override val defaultValue: Identifier,
-    override var value: Identifier = defaultValue) : ConfigSetting<Identifier, StringType>(settingIdentifier, comment, defaultValue, value), CommandControllableSetting<Identifier, IdentifierArgumentType> {
+    override var value: Identifier = defaultValue) : ConfigSetting<Identifier, StringType>(settingLocation, comment, defaultValue, value), CommandControllableSetting<Identifier, IdentifierArgumentType> {
 
     override val serializedValue: StringType
         get() = StringType(this.value.toString())
@@ -27,8 +27,8 @@ open class IdentifierSetting @JvmOverloads constructor(
     override val argumentType: IdentifierArgumentType
         get() = IdentifierArgumentType.identifier()
 
-    override val commandIdentifier: SettingIdentifier
-        get() = this.settingIdentifier
+    override val commandIdentifier: SettingLocation
+        get() = this.settingLocation
 
     override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): Identifier {
         return IdentifierArgumentType.getIdentifier(ctx, argumentName)

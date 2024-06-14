@@ -2,7 +2,7 @@ package xd.arkosammy.monkeyconfig.settings
 
 import xd.arkosammy.monkeyconfig.types.ListType
 import xd.arkosammy.monkeyconfig.types.SerializableType
-import xd.arkosammy.monkeyconfig.util.SettingIdentifier
+import xd.arkosammy.monkeyconfig.util.SettingLocation
 
 /**
  * A [ConfigSetting] which stores a [List] of values.
@@ -13,14 +13,15 @@ import xd.arkosammy.monkeyconfig.util.SettingIdentifier
  *
  * @param [E] The element type the list in this [ConfigSetting]
  * @param [S] The type to use to serialize the elements of this list to and from a config file.
- * will become the type parameter of [ListType], which will be the serialized version of this [ConfigSetting]'s value.
+ * [S] will become the type parameter of [ListType] used to serialize the elements of this list.
  */
 abstract class ListSetting<E, S : SerializableType<*>> @JvmOverloads constructor(
-    settingIdentifier: SettingIdentifier, comment: String? = null,
+    settingLocation: SettingLocation,
+    comment: String? = null,
     defaultValue: List<E>,
-    value: List<E> = defaultValue) : ConfigSetting<List<E>, ListType<S>>(settingIdentifier, comment, value) {
+    value: List<E> = defaultValue) : ConfigSetting<List<E>, ListType<S>>(settingLocation, comment, value) {
 
-    abstract class Builder<E, S : SerializableType<*>> @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: List<E>) : ConfigSetting.Builder<List<E>, ListType<S>, ListSetting<E, S>>(id, comment, defaultValue) {
+    abstract class Builder<E, S : SerializableType<*>> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: List<E>) : ConfigSetting.Builder<ListSetting<E, S>, List<E>, ListType<S>>(settingLocation, comment, defaultValue) {
 
         abstract override fun build(): ListSetting<E, S>
 

@@ -10,10 +10,10 @@ import xd.arkosammy.monkeyconfig.types.ListType
 import xd.arkosammy.monkeyconfig.types.NumberType
 
 open class BlockPosSetting @JvmOverloads constructor(
-    settingIdentifier: SettingIdentifier,
+    settingLocation: SettingLocation,
     comment: String? = null,
     override val defaultValue: BlockPos,
-    override var value: BlockPos = defaultValue) : ConfigSetting<BlockPos, ListType<NumberType<Int>>>(settingIdentifier, comment, defaultValue, value), CommandControllableSetting<BlockPos, BlockPosArgumentType> {
+    override var value: BlockPos = defaultValue) : ConfigSetting<BlockPos, ListType<NumberType<Int>>>(settingLocation, comment, defaultValue, value), CommandControllableSetting<BlockPos, BlockPosArgumentType> {
 
     override val serializedValue: ListType<NumberType<Int>>
         get() = ListType(listOf(NumberType(this.value.x), NumberType(this.value.y), NumberType(this.value.z)))
@@ -28,8 +28,8 @@ open class BlockPosSetting @JvmOverloads constructor(
     override val argumentType: BlockPosArgumentType
         get() = BlockPosArgumentType.blockPos()
 
-    override val commandIdentifier: SettingIdentifier
-        get() = this.settingIdentifier
+    override val commandIdentifier: SettingLocation
+        get() = this.settingLocation
 
     override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): BlockPos {
         return BlockPosArgumentType.getBlockPos(ctx, argumentName)

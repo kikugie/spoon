@@ -5,13 +5,13 @@ import com.mojang.brigadier.context.CommandContext
 import net.minecraft.server.command.ServerCommandSource
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 import xd.arkosammy.monkeyconfig.types.StringType
-import xd.arkosammy.monkeyconfig.util.SettingIdentifier
+import xd.arkosammy.monkeyconfig.util.SettingLocation
 
 open class StringSetting @JvmOverloads constructor(
-    settingIdentifier: SettingIdentifier,
+    settingLocation: SettingLocation,
     comment: String? = null,
     defaultValue: String,
-    value: String = defaultValue) : ConfigSetting<String, StringType>(settingIdentifier, comment, value), CommandControllableSetting<String, StringArgumentType> {
+    value: String = defaultValue) : ConfigSetting<String, StringType>(settingLocation, comment, value), CommandControllableSetting<String, StringArgumentType> {
 
     override val serializedValue: StringType
         get() = StringType(this.value)
@@ -23,8 +23,8 @@ open class StringSetting @JvmOverloads constructor(
         this.value = serializedValue.value
     }
 
-    override val commandIdentifier: SettingIdentifier
-        get() = this.settingIdentifier
+    override val commandIdentifier: SettingLocation
+        get() = this.settingLocation
 
     override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): String {
         return StringArgumentType.getString(ctx, argumentName)
@@ -33,10 +33,10 @@ open class StringSetting @JvmOverloads constructor(
     override val argumentType: StringArgumentType
         get() = StringArgumentType.string()
 
-    class Builder @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: String) : ConfigSetting.Builder<String, StringType, StringSetting>(id, comment, defaultValue) {
+    class Builder @JvmOverloads constructor(id: SettingLocation, comment: String? = null, defaultValue: String) : ConfigSetting.Builder<StringSetting, String, StringType>(id, comment, defaultValue) {
 
         override fun build(): StringSetting {
-            return StringSetting(this.id, this.comment, this.defaultValue)
+            return StringSetting(this.settingLocation, this.comment, this.defaultValue)
         }
 
     }

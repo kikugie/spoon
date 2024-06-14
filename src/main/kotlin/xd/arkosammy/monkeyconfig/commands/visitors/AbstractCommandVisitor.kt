@@ -12,11 +12,20 @@ import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 import xd.arkosammy.monkeyconfig.managers.ConfigManager
+import xd.arkosammy.monkeyconfig.groups.SettingGroup
+
 
 /**
- * Default implementation of [AbstractCommandVisitor]
+ * Default implementation of [AbstractCommandVisitor] that creates a [LiteralCommandNode] for the [configNode],
+ * as well as a node for the "reload" command.
+ * It overrides [onConfigReloadedCallback] and it simply attempts to reload the [ConfigManager] of this class,
+ * and shows whether this operation was successful, to the user.
  *
- * Implementors should be aware that the constructor of this class already registers the root node, the config node, as well as the relaod node, so there is no need to register them again
+ * @param [configManager] The [ConfigManager] from which to retrieve [CommandControllableSetting]s from. The name of the [SettingGroup] associated with the setting used as the command category of the respective command.
+ * @param [rootNodeName] The name of the [LiteralCommandNode] that will contain all other configuration related commands.
+ * @param [commandDispatcher] The [CommandDispatcher] to use to register commands to.
+ * @param [commandRegistryAccess] An optional [CommandRegistryAccess] instance to use with commands.
+ * @param [registrationEnvironment] An optional [CommandManager.RegistrationEnvironment] instance to ues with commands.
  */
 abstract class AbstractCommandVisitor @JvmOverloads constructor(
     protected val configManager: ConfigManager,

@@ -5,8 +5,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import xd.arkosammy.monkeyconfig.managers.ConfigManager
 import xd.arkosammy.monkeyconfig.managers.TomlConfigManager
+import xd.arkosammy.monkeyconfig.managers.getTypedSetting
 import xd.arkosammy.monkeyconfig.registrars.DefaultConfigRegistrar
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
+import xd.arkosammy.monkeyconfig.settings.NumberSetting
+import xd.arkosammy.monkeyconfig.util.SettingLocation
 
 object KMonkeyConfigTest : ModInitializer {
 
@@ -17,6 +20,9 @@ object KMonkeyConfigTest : ModInitializer {
     override fun onInitialize() {
 
         DefaultConfigRegistrar.registerConfigManager(manager)
+
+        val numberSetting: NumberSetting<Int>? = manager.getTypedSetting<Int, NumberSetting<Int>>(SettingLocation("a", "o"))
+
 
     }
 }

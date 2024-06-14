@@ -14,7 +14,7 @@ object MonkeyConfig : ModInitializer {
 
 	override fun onInitialize() {
 
-		ServerLifecycleEvents.SERVER_STOPPING.register { _ ->
+		ServerLifecycleEvents.SERVER_STOPPING.register {
 			DefaultConfigRegistrar.saveAllManagers()
 		}
 

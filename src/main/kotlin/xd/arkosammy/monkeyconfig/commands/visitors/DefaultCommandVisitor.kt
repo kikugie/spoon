@@ -10,6 +10,12 @@ import net.minecraft.server.command.ServerCommandSource
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 import xd.arkosammy.monkeyconfig.managers.ConfigManager
 
+/**
+ * The default implementation of [AbstractCommandVisitor].
+ * It uses an internal [List] of Strings
+ * to determine the command categories to use for the consumed [CommandControllableSetting]s,
+ * and a [List] of [LiteralCommandNode] to keep track of already registered command node categories.
+ */
 class DefaultCommandVisitor @JvmOverloads constructor(
     configManager: ConfigManager,
     rootNodeName: String = configManager.configName,
@@ -17,13 +23,13 @@ class DefaultCommandVisitor @JvmOverloads constructor(
     commandRegistryAccess: CommandRegistryAccess? = null,
     registrationEnvironment: CommandManager.RegistrationEnvironment? = null) : AbstractCommandVisitor(configManager, rootNodeName, commandDispatcher, commandRegistryAccess, registrationEnvironment) {
 
-    private val configCategories: List<String> = this.configManager.configTables.map { table ->  table.name }.toList()
+    private val configCategories: List<String> = this.configManager.settingGroups.map { table ->  table.name }.toList()
     private val cachedCategoryNodes: MutableList<LiteralCommandNode<ServerCommandSource>> = mutableListOf()
 
     override fun <V : Any, T : ArgumentType<*>> visit(commandControllableSetting: CommandControllableSetting<V, T>) {
 
         val settingName: String = commandControllableSetting.commandIdentifier.settingName
-        val settingCategory: String = commandControllableSetting.commandIdentifier.tableName
+        val settingCategory: String = commandControllableSetting.commandIdentifier.groupName
 
         // Return if the setting category of the setting is not in the list of config categories to register commands with
         if (!this.configCategories.contains(settingCategory)) {

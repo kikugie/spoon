@@ -5,20 +5,13 @@ import com.mojang.brigadier.context.CommandContext
 import net.minecraft.server.command.ServerCommandSource
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 import xd.arkosammy.monkeyconfig.types.BooleanType
-import xd.arkosammy.monkeyconfig.util.SettingIdentifier
+import xd.arkosammy.monkeyconfig.util.SettingLocation
 
 open class BooleanSetting @JvmOverloads constructor(
-    settingIdentifier: SettingIdentifier,
+    settingLocation: SettingLocation,
     comment: String? = null,
     defaultValue: Boolean,
-    value: Boolean = defaultValue) : ConfigSetting<Boolean, BooleanType>(settingIdentifier, comment, defaultValue, value), CommandControllableSetting<Boolean, BoolArgumentType> {
-
-    override val commandIdentifier: SettingIdentifier
-        get() = this.settingIdentifier
-
-    override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): Boolean {
-        return BoolArgumentType.getBool(ctx, argumentName)
-    }
+    value: Boolean = defaultValue) : ConfigSetting<Boolean, BooleanType>(settingLocation, comment, defaultValue, value), CommandControllableSetting<Boolean, BoolArgumentType> {
 
     override val serializedValue: BooleanType
         get() = BooleanType(this.value)
@@ -30,13 +23,20 @@ open class BooleanSetting @JvmOverloads constructor(
         this.value = serializedValue.value
     }
 
+    override val commandIdentifier: SettingLocation
+        get() = this.settingLocation
+
     override val argumentType : BoolArgumentType
         get() = BoolArgumentType.bool()
 
-    class Builder @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: Boolean) : ConfigSetting.Builder<Boolean, BooleanType, BooleanSetting>(id, comment, defaultValue) {
+    override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): Boolean {
+        return BoolArgumentType.getBool(ctx, argumentName)
+    }
+
+    class Builder @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: Boolean) : ConfigSetting.Builder<BooleanSetting, Boolean, BooleanType>(settingLocation, comment, defaultValue) {
 
         override fun build(): BooleanSetting {
-            return BooleanSetting(this.id, this.comment, this.defaultValue)
+            return BooleanSetting(this.settingLocation, this.comment, this.defaultValue)
         }
 
     }

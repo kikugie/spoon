@@ -1,4 +1,4 @@
-package xd.arkosammy.monkeyconfig.tables.maps
+package xd.arkosammy.monkeyconfig.groups.maps
 
 import com.electronwill.nightconfig.core.Config
 import com.electronwill.nightconfig.core.file.CommentedFileConfig
@@ -7,35 +7,26 @@ import xd.arkosammy.monkeyconfig.MonkeyConfig
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.types.ListType
 import xd.arkosammy.monkeyconfig.types.SerializableType
-import xd.arkosammy.monkeyconfig.util.SettingIdentifier
-import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
-import xd.arkosammy.monkeyconfig.tables.toSerializedType
-import xd.arkosammy.monkeyconfig.tables.ConfigTable
-
-// TODO: make default implementations of this class for users
+import xd.arkosammy.monkeyconfig.util.SettingLocation
+import xd.arkosammy.monkeyconfig.types.toSerializedType
 
 /**
- * This implementation
- * of [ConfigTable] associates each of the [ConfigSetting] instances to its [SettingIdentifier] name.
- * All [ConfigSetting] instances stored in this table are written to and read from in bulk from the [FileConfig],
- * thus, it shouldn't be used to create [CommandControllableSetting] instances,
- * as the entries of this table can change during runtime by editing the config file.
- *
- * @param [V] The type of the values that will be written to and read from the [FileConfig].
- * must be an instance of [SerializableType]
+ * Base implementation of [MapSettingGroup].
+ * This class should be used as a reference for how to implement a custom [MapSettingGroup].
  */
-abstract class AbstractMapConfigTable<V : SerializableType<*>> @JvmOverloads constructor(
-    defaultEntries: List<ConfigSetting<V, V>>,
-    tableEntries: List<ConfigSetting<V, V>> = defaultEntries,
+abstract class AbstractMapSettingGroup<V : SerializableType<*>> @JvmOverloads constructor(
     override val name: String,
-    override val comment: String? = null) : MapConfigTable<V> {
+    override val comment: String? = null,
+    defaultEntries: List<ConfigSetting<V, V>>,
+    mapEntries: List<ConfigSetting<V, V>> = defaultEntries) : MapSettingGroup<V> {
 
     override val configSettings: List<ConfigSetting<V, V>>
-        get() = tableEntries.toList()
+        get() = mapEntries.toList()
 
-    protected var tableEntries: MutableList<ConfigSetting<V, V>> = tableEntries.toMutableList()
+    protected var mapEntries: MutableList<ConfigSetting<V, V>> = mapEntries.toMutableList()
     protected val defaultTableEntries: List<ConfigSetting<V, V>> = defaultEntries.toList()
     protected var _isRegistered: Boolean = false
+
     override val isRegistered: Boolean
         get() = this._isRegistered
 
@@ -44,8 +35,8 @@ abstract class AbstractMapConfigTable<V : SerializableType<*>> @JvmOverloads con
     }
 
     override fun get(key: String) : V? {
-        this.tableEntries.forEach { tableEntry ->
-            if(tableEntry.settingIdentifier.settingName == key) {
+        this.mapEntries.forEach { tableEntry ->
+            if(tableEntry.settingLocation.settingName == key) {
                 return tableEntry.value
             }
         }
@@ -53,15 +44,15 @@ abstract class AbstractMapConfigTable<V : SerializableType<*>> @JvmOverloads con
     }
 
     override fun setDefaultValues(fileConfig: FileConfig) {
-        this.tableEntries.clear()
-        this.tableEntries.addAll(this.defaultTableEntries)
+        this.mapEntries.clear()
+        this.mapEntries.addAll(this.defaultTableEntries)
         this.setValues(fileConfig)
     }
 
     override fun setValues(fileConfig: FileConfig) {
-        if(this.tableEntries.isNotEmpty()) {
-            for(setting: ConfigSetting<V, V> in this.tableEntries) {
-                val settingAddress = "${this.name}.${setting.settingIdentifier.settingName}"
+        if(this.mapEntries.isNotEmpty()) {
+            for(setting: ConfigSetting<V, V> in this.mapEntries) {
+                val settingAddress = "${this.name}.${setting.settingLocation.settingName}"
                 val valueAsSerialized: V = setting.serializedValue
                 fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.fullyDeserializedList else valueAsSerialized.value)
             }
@@ -90,7 +81,7 @@ abstract class AbstractMapConfigTable<V : SerializableType<*>> @JvmOverloads con
             // If that holds true, then the cast to V should be successful,
             // as StringType matches the type parameter of this MapConfigTable instance.
             try {
-                val setting: ConfigSetting<V, V> = object : ConfigSetting<V, V>(SettingIdentifier(this.name, entry.key), defaultValue = deserializedValue as V) {
+                val setting: ConfigSetting<V, V> = object : ConfigSetting<V, V>(SettingLocation(this.name, entry.key), defaultValue = deserializedValue as V) {
                     override val serializedValue: V
                         get() = this.value
                     override val serializedDefaultValue: V
@@ -102,11 +93,11 @@ abstract class AbstractMapConfigTable<V : SerializableType<*>> @JvmOverloads con
                 }
                 tempEntries.add(setting)
             } catch (e: ClassCastException) {
-                MonkeyConfig.LOGGER.error("Unexpected value \"$readValue\" of type \"${readValue::class.simpleName}\" found for ${this::class.simpleName} of name ${this.name}. This entry will not be added to this config table.")
+                MonkeyConfig.LOGGER.error("Unexpected value \"$readValue\" of type \"${readValue::class.simpleName}\" found for ${this::class.simpleName} of name ${this.name}. This entry will not be added to this setting group.")
             }
         }
-        this.tableEntries.clear()
-        this.tableEntries.addAll(tempEntries)
+        this.mapEntries.clear()
+        this.mapEntries.addAll(tempEntries)
     }
 
     override fun toString(): String {

@@ -3,13 +3,13 @@ package xd.arkosammy.monkeyconfig.settings.list
 import xd.arkosammy.monkeyconfig.settings.ListSetting
 import xd.arkosammy.monkeyconfig.types.ListType
 import xd.arkosammy.monkeyconfig.types.StringType
-import xd.arkosammy.monkeyconfig.util.SettingIdentifier
+import xd.arkosammy.monkeyconfig.util.SettingLocation
 
 open class StringListSetting @JvmOverloads constructor(
-    settingIdentifier: SettingIdentifier,
+    settingLocation: SettingLocation,
     comment: String? = null,
     defaultValue: List<String>,
-    value: List<String> = defaultValue) : ListSetting<String, StringType>(settingIdentifier, comment, defaultValue, value) {
+    value: List<String> = defaultValue) : ListSetting<String, StringType>(settingLocation, comment, defaultValue, value) {
 
     override val serializedValue: ListType<StringType>
         get() = ListType(this.value.toList().map { e -> StringType(e) })
@@ -21,10 +21,10 @@ open class StringListSetting @JvmOverloads constructor(
         this.value = serializedValue.value.toList().map { e -> e.value }
     }
 
-    class Builder @JvmOverloads constructor(id: SettingIdentifier, comment: String? = null, defaultValue: List<String>) : ListSetting.Builder<String, StringType>(id, comment, defaultValue) {
+    class Builder @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: List<String>) : ListSetting.Builder<String, StringType>(settingLocation, comment, defaultValue) {
 
         override fun build(): StringListSetting {
-            return StringListSetting(this.id, this.comment, this.defaultValue)
+            return StringListSetting(this.settingLocation, this.comment, this.defaultValue)
         }
 
     }

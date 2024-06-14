@@ -6,42 +6,48 @@ import xd.arkosammy.monkeyconfig.commands.visitors.CommandVisitor
 import xd.arkosammy.monkeyconfig.commands.visitors.DefaultCommandVisitor
 import xd.arkosammy.monkeyconfig.managers.ConfigManager
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
-import xd.arkosammy.monkeyconfig.tables.ConfigTable
+import xd.arkosammy.monkeyconfig.groups.SettingGroup
 
+/**
+ * Default singleton implementation of [ConfigRegistrar].
+ * This implementation generates commands for each [ConfigSetting]
+ * contained in each [ConfigManager] registered via [ConfigRegistrar.registerConfigManager]
+ * The registration of [ConfigManager] should only be done during mod initialization,
+ * as this is the only time that commands can be normally registered.
+ */
 object DefaultConfigRegistrar : ConfigRegistrar {
 
     private val configManagers: MutableList<ConfigManager> = mutableListOf()
 
     override fun registerConfigManager(configManager: ConfigManager) {
         this.configManagers.add(configManager)
-        CommandRegistrationCallback.EVENT.register { commandDispatcher, commandRegistryAccess, registrationEnvironment ->
+        CommandRegistrationCallback.EVENT.register { commandDispatcher, _, _ ->
             val commandVisitor: CommandVisitor = DefaultCommandVisitor(configManager, commandDispatcher = commandDispatcher)
-            for(table: ConfigTable in configManager.configTables) {
-                if(!table.registerSettingsAsCommands) {
+            for(settingGroup: SettingGroup in configManager.settingGroups) {
+                if(!settingGroup.registerSettingsAsCommands) {
                     continue
                 }
-                for(setting: ConfigSetting<*, *> in table.configSettings) {
+                for(setting: ConfigSetting<*, *> in settingGroup.configSettings) {
                     if(setting !is CommandControllableSetting<*, *>) {
                         continue
                     }
                     setting.accept(commandVisitor)
                 }
             }
-
         }
     }
 
-    override fun reloadAllManagers(callback: (ConfigManager) -> Unit) {
-        this.configManagers.forEach {manager ->
-            manager.reloadFromFile()
-            callback(manager)
+    override fun reloadAllManagers(onReloadedCallback: (ConfigManager) -> Unit) {
+        for(configManager: ConfigManager in this.configManagers) {
+            configManager.reloadFromFile()
+            onReloadedCallback(configManager)
         }
     }
 
-    override fun saveAllManagers(callback: (ConfigManager) -> Unit) {
-        this.configManagers.forEach { manager ->
-            manager.saveToFile()
-            callback(manager)
+    override fun saveAllManagers(onSavedCallback: (ConfigManager) -> Unit) {
+        for(configManager: ConfigManager in this.configManagers) {
+            configManager.saveToFile()
+            onSavedCallback(configManager)
         }
     }
 }

@@ -1,14 +1,14 @@
 package xd.arkosammy.monkeyconfig.managers
 
 import xd.arkosammy.monkeyconfig.settings.*
-import xd.arkosammy.monkeyconfig.tables.ConfigTable
-import xd.arkosammy.monkeyconfig.util.SettingIdentifier
-import xd.arkosammy.monkeyconfig.tables.MutableConfigTable
+import xd.arkosammy.monkeyconfig.groups.SettingGroup
+import xd.arkosammy.monkeyconfig.util.SettingLocation
+import xd.arkosammy.monkeyconfig.groups.MutableSettingGroup
 import xd.arkosammy.monkeyconfig.settings.list.StringListSetting
-import kotlin.jvm.Throws
 
 /**
- * A class that manages [ConfigTable] and serializes them to a configuration file for use by an external user.
+ * A manager of [SettingGroup]s and is in charge
+ * of serializing the contained [SettingGroup] to and from a configuration file.
  */
 interface ConfigManager {
 
@@ -18,55 +18,66 @@ interface ConfigManager {
     val configName: String
 
     /**
-     * An immutable list of the config tables in this config manager.
+     * An immutable list of the [SettingGroup]s.
      * If this list is provided by an outside source,
      * implementors should copy this list into an immutable list to avoid further modifications.
-     * Implementors should also make sure that the [ConfigTable] instances are not an instance of [MutableConfigTable].
+     * Implementors should also make sure that the [SettingGroup] instances are not an instance of [MutableSettingGroup],
+     * otherwise, use [MutableSettingGroup.toImmutable] to convert them to their immutable version.
      */
-    val configTables: List<ConfigTable>
+    val settingGroups: List<SettingGroup>
 
     /**
      * Will attempt
-     * to reload the values of the config settings stored in this config manager from the file if it exists.
+     * to update the values of the [ConfigSetting] in this manager's
+     * [settingGroups] by reading from a configuration file,
+     * if it exists.
      *
-     * @return `true` if the reload was successful, false if otherwise.
-     * A common cause of the reloading failing is due to a missing config file.
+     * @return `true` if the reload was successful, `false` if otherwise.
+     * A common cause of failure is due to a missing configuration file.
      */
     fun reloadFromFile() : Boolean
 
     /**
-     * Will attempt to save the values of the config settings stored in this config manager to the config file,
-     * or create a new config file if it doesn't exist.
-     * If a new config file is created, the config tables in this manager will be reset to their default values.
+     * Will attempt
+     * to save the values of the [ConfigSetting] in this manager's
+     * [settingGroups] by writing them to a configuration file.
+     * If the configuration file is missing, a new configuration file will be created,
+     * the values of the [ConfigSetting]s will be reset, and then written to the file.
+     *
+     * @return `true` if the save was successful, `false` otherwise.
+     * A common cause of failure is due to a missing configuration file.
      */
-    fun saveToFile()
+    fun saveToFile() : Boolean
 
     /**
-     * Returns a config setting with the given [settingId] and [settingClass].
-     * If the setting does not exist, an [IllegalArgumentException] will be thrown.
+     * Returns a [ConfigSetting] with the given [settingLocation] and [settingClass].
+     *
+     * @param settingLocation The [SettingLocation] to look for in this [ConfigManager].
+     * @param [settingClass] The class that represents the type of the [ConfigSetting]'s value to look for in this [ConfigManager].
+     * @return the [ConfigSetting] given by the [settingLocation] and [settingClass],
+     * or `null` if it wasn't found in this [ConfigManager]
      */
-    @Throws(IllegalArgumentException::class)
-    fun <V, T : ConfigSetting<V, *>> getTypedSetting(settingId: SettingIdentifier, settingClass: Class<T>) : T
+    fun <V, T : ConfigSetting<V, *>> getTypedSetting(settingLocation: SettingLocation, settingClass: Class<T>) : T?
 
     /**
-     * Returns a config table with the given [tableName], or throws an [IllegalArgumentException] if the table cannot be found.
+     * Returns a [SettingGroup] with the given [groupName].
+     * @param groupName The name of the [SettingGroup] to look for in this [ConfigManager].
+     * @return a [SettingGroup] with a matching [groupName], or `null` if none were found.
      */
-    @Throws(IllegalArgumentException::class)
-    fun getConfigTable(tableName: String) : ConfigTable
+    fun getSettingGroup(groupName: String) : SettingGroup?
 
 }
 
-inline fun <V, reified T : ConfigSetting<V, *>> ConfigManager.getTypedSetting(settingId: SettingIdentifier) : T {
+inline fun <V, reified T : ConfigSetting<V, *>> ConfigManager.getTypedSetting(settingId: SettingLocation) : T? {
     return this.getTypedSetting(settingId, T::class.java)
 }
 
-fun ConfigManager.getAsIntSetting(settingId: SettingIdentifier) : NumberSetting<Int> = this.getTypedSetting(settingId)
+fun ConfigManager.getAsIntSetting(settingId: SettingLocation) : NumberSetting<Int>? = this.getTypedSetting<Int, NumberSetting<Int>>(settingId)
 
-fun ConfigManager.getAsDoubleSetting(settingId: SettingIdentifier) : NumberSetting<Double> = this.getTypedSetting(settingId)
+fun ConfigManager.getAsDoubleSetting(settingId: SettingLocation) : NumberSetting<Double>? = this.getTypedSetting<Double, NumberSetting<Double>>(settingId)
 
-fun ConfigManager.getAsBooleanSetting(settingId: SettingIdentifier) : BooleanSetting = this.getTypedSetting(settingId)
+fun ConfigManager.getAsBooleanSetting(settingId: SettingLocation) : BooleanSetting? = this.getTypedSetting<Boolean, BooleanSetting>(settingId)
 
-fun ConfigManager.getAsStringSetting(settingId: SettingIdentifier) : StringSetting = this.getTypedSetting(settingId)
+fun ConfigManager.getAsStringSetting(settingId: SettingLocation) : StringSetting? = this.getTypedSetting<String, StringSetting>(settingId)
 
-fun ConfigManager.getAsStringListSetting(settingId: SettingIdentifier) : StringListSetting = this.getTypedSetting(settingId)
-
+fun ConfigManager.getAsStringListSetting(settingId: SettingLocation) : StringListSetting? = this.getTypedSetting<List<String>, StringListSetting>(settingId)

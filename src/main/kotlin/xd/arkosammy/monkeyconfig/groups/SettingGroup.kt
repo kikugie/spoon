@@ -1,39 +1,38 @@
-package xd.arkosammy.monkeyconfig.tables
+package xd.arkosammy.monkeyconfig.groups
 
-import com.electronwill.nightconfig.core.CommentedConfig
 import com.electronwill.nightconfig.core.file.CommentedFileConfig
 import com.electronwill.nightconfig.core.file.FileConfig
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.settings.EnumSetting
 import xd.arkosammy.monkeyconfig.types.*
 import xd.arkosammy.monkeyconfig.managers.ConfigManager
-import xd.arkosammy.monkeyconfig.tables.maps.MapConfigTable
+import xd.arkosammy.monkeyconfig.groups.maps.MapSettingGroup
 
 /**
- * Represents a container of config settings useful for grouping related config settings under a common namespace
+ * Represents a container of [ConfigSetting]s useful for grouping related config settings under a common namespace
  * and for serializing using a [ConfigManager].
  * They can be registered with a [ConfigManager] to be loaded from and saved to a config file.
  */
-interface ConfigTable {
+interface SettingGroup {
 
     /**
-     * The name of this config table.
+     * The name of this [SettingGroup]
      */
     val name: String
 
     /**
-     * The comment for this config table to be written to the config file, if any.
+     * The comment for this [SettingGroup] to be written to the config file, if any.
      */
     val comment: String?
 
     /**
-     * The list of [ConfigSetting] instances stored in this [ConfigTable]. This list should ideally be immutable.
+     * The list of [ConfigSetting] instances stored in this [SettingGroup]. This list should ideally be immutable.
      */
     val configSettings: List<ConfigSetting<*, *>>
 
     /**
      * Whether this table has been registered with a config manager.
-     * This value should be set using [ConfigTable.setAsRegistered] after initializing the table
+     * This value should be set using [SettingGroup.setAsRegistered] after initializing the table
      * and adding it to a [ConfigManager] to prevent further settings from being added.
      */
     val isRegistered: Boolean
@@ -46,36 +45,38 @@ interface ConfigTable {
     /**
      * Whether the [ConfigSetting] instances should be used
      * to register commands for editing the values of those settings.
-     * Should be `false` if the [ConfigTable]'s [ConfigSetting] instances can change during runtime,
-     * should as with [MapConfigTable]
+     * Should be `false` if the [SettingGroup]'s [ConfigSetting] instances can change during runtime,
+     * should as with [MapSettingGroup]
      */
     val registerSettingsAsCommands: Boolean
 
     /**
-     * Sets this config table as registered. This method should be called after the table has been added to a config manager and should be used a check before attempting to modify the table.
+     * Sets this [SettingGroup] as registered.
+     * This method should be called after the [SettingGroup] has been added to a [ConfigManager].
+     * Once a [SettingGroup] has been registered, it should not be unregistered again.
      */
     fun setAsRegistered()
 
     /**
-     * Called when and after the table is registered with a config manager.
+     * Invoked by a [ConfigManager] after and when this [SettingGroup] has been registered.
      */
     fun onRegistered() {}
 
     /**
-     * Called when and after the table is loaded from a config file.
+     * Invoked by a [ConfigManager] after and when this [SettingGroup]'s values are loaded from a config file.
      */
     fun onLoaded() {}
 
     /**
-     * Called when and after the table is saved to a config file.
+     * Invoked by a [ConfigManager] after and when this [SettingGroup]'s values are saved to a config file.
      */
     fun onSavedToFile() {}
 
     /**
-     * Sets the values of the settings in this table to their default values, then writes these values to {@code fileConfig}.
-     * This method should be called when creating a new config file or when the config file is missing settings.
+     * Sets the values of the [ConfigSetting]s in this [SettingGroup] to their default values,
+     * then writes them to [fileConfig].
      *
-     * @param fileConfig The {@code CommentedFileConfig} instance to which to write the default values of the settings to
+     * @param fileConfig The [FileConfig] instance to which to write the values of this [SettingGroup] to.
      */
     fun setDefaultValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
@@ -85,13 +86,13 @@ interface ConfigTable {
     }
 
     /**
-     * Writes the current values of the settings in this table to [fileConfig].
+     * Writes the current values of the settings in this [SettingGroup] to [fileConfig].
      *
-     * @param fileConfig The [CommentedFileConfig] instance to which to write the values of the settings to
+     * @param fileConfig The [FileConfig] instance to which to write the values of this [SettingGroup] to.
      */
     fun setValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
-            val settingLocation = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
+            val settingLocation = "${setting.settingLocation.groupName}.${setting.settingLocation.settingName}"
             val valueAsSerialized: SerializableType<*> = setting.serializedValue
             fileConfig.set<Any>(settingLocation, if(valueAsSerialized is ListType<*>) valueAsSerialized.fullyDeserializedList else valueAsSerialized.value)
             setting.comment?.let { comment ->
@@ -101,49 +102,38 @@ interface ConfigTable {
         this.comment?.let { comment ->
             if(fileConfig is CommentedFileConfig) fileConfig.setComment(this.name, comment)
         }
-        val tableConfig: CommentedConfig = fileConfig.get(this.name)
-        tableConfig.entrySet().removeIf { entry -> !this.containsSettingName(entry.key)}
+        val configSection: FileConfig = fileConfig.get(this.name)
+        configSection.entrySet().removeIf { entry -> !this.containsSettingName(entry.key)}
     }
 
     /**
-     * Loads the values of the settings in this table from {@code fileConfig}.
+     * Updates the values of the [ConfigSetting]s in this [SettingGroup] by reading them from [fileConfig].
      *
-     * @param fileConfig The [CommentedFileConfig] instance from which to load the values of the settings from
+     * @param fileConfig The [FileConfig] instance from which to read the values from.
      */
     fun loadValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
-            val settingAddress = "${setting.settingIdentifier.tableName}.${setting.settingIdentifier.settingName}"
-            val value: Any = (if(setting is EnumSetting<*>) fileConfig.getEnum(settingAddress, setting.enumClass) ?: setting.defaultValue else fileConfig.getOrElse(settingAddress, setting.serializedDefaultValue))!!
-            val deserializedValue: SerializableType<*> = toSerializedType(value)
+            val settingLocation = "${setting.settingLocation.groupName}.${setting.settingLocation.settingName}"
+            val defaultSerializedValue: SerializableType<*> = setting.serializedDefaultValue
+            val rawValue: Any = if (setting is EnumSetting<*>) {
+                fileConfig.getEnum(settingLocation, setting.enumClass) ?: defaultSerializedValue
+            } else {
+                fileConfig.getOrElse(settingLocation, defaultSerializedValue) ?: defaultSerializedValue
+            }
+            val deserializedValue: SerializableType<*> = toSerializedType(rawValue)
             setValueSafely(setting, deserializedValue)
         }
     }
 
     /**
-     * Checks whether this table contains a setting with the name [settingName].
-     * @return whether this table contains a setting with the name [settingName]
+     * Checks whether this [SettingGroup] contains [ConfigSetting] with a matching [settingName].
+     *
+     * @param [settingName] The name of the [ConfigSetting] to look for.
+     * @return whether this [SettingGroup] contains a [ConfigSetting] whose name matches [settingName].
      */
-    fun containsSettingName(settingName: String) : Boolean {
-        for(setting: ConfigSetting<*, *> in this.configSettings) {
-            if(setting.settingIdentifier.settingName == settingName) {
-                return true
-            }
-        }
-        return false
-    }
+    fun containsSettingName(settingName: String) : Boolean =
+        this.configSettings.any { setting -> setting.settingLocation.settingName == settingName }
 
-}
-
-fun toSerializedType(value: Any): SerializableType<*> {
-    return when (value) {
-        is SerializableType<*> -> value
-        is List<*> -> ListType(value.filterNotNull().map { e -> toSerializedType(e) })
-        is Number -> NumberType(value)
-        is String -> StringType(value)
-        is Boolean -> BooleanType(value)
-        is Enum<*> -> EnumType(value)
-        else -> throw IllegalArgumentException("Value $value of type \"${value::class.simpleName}\" cannot be converted to an instance of SerializableType")
-    }
 }
 
 /**
