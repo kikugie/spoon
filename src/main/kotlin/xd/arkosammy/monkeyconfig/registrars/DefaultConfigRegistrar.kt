@@ -14,6 +14,8 @@ import xd.arkosammy.monkeyconfig.groups.SettingGroup
  * contained in each [ConfigManager] registered via [ConfigRegistrar.registerConfigManager]
  * The registration of [ConfigManager] should only be done during mod initialization,
  * as this is the only time that commands can be normally registered.
+ *
+ * `MonkeyConfig` automatically calls [saveAllManagers] upon server shutdown on [DefaultConfigRegistrar].
  */
 object DefaultConfigRegistrar : ConfigRegistrar {
 
@@ -50,4 +52,11 @@ object DefaultConfigRegistrar : ConfigRegistrar {
             onSavedCallback(configManager)
         }
     }
+
+    override fun forEachManager(action: (ConfigManager) -> Unit) {
+        for (configManager: ConfigManager in this.configManagers) {
+            action(configManager)
+        }
+    }
+
 }

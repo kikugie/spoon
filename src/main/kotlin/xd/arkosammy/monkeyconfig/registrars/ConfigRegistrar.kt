@@ -31,4 +31,9 @@ interface ConfigRegistrar {
      */
     fun saveAllManagers(onSavedCallback: (ConfigManager) -> Unit = {})
 
+    /**
+     * Runs the given [action] on every [ConfigManager] registered on this [ConfigRegistrar]
+     */
+    fun forEachManager(action: (ConfigManager) -> Unit)
+
 }

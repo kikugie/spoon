@@ -13,7 +13,6 @@ public class JMonkeyConfigTest implements ModInitializer {
     public void onInitialize() {
 
 
-
     }
 
 }
