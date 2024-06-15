@@ -13,15 +13,11 @@ open class StringSetting @JvmOverloads constructor(
     defaultValue: String,
     value: String = defaultValue) : ConfigSetting<String, StringType>(settingLocation, comment, value), CommandControllableSetting<String, StringArgumentType> {
 
-    override val serializedValue: StringType
-        get() = StringType(this.value)
+    override val valueToSerializedConverter: (String) -> StringType
+        get() = { string -> StringType(string) }
 
-    override val serializedDefaultValue: StringType
-        get() = StringType(this.defaultValue)
-
-    override fun setValueFromSerialized(serializedValue: StringType) {
-        this.value = serializedValue.value
-    }
+    override val serializedToValueConverter: (StringType) -> String
+        get() = { stringType -> stringType.rawValue }
 
     override val commandIdentifier: SettingLocation
         get() = this.settingLocation

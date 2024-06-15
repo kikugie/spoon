@@ -6,7 +6,8 @@ import xd.arkosammy.monkeyconfig.settings.ConfigSetting
 import xd.arkosammy.monkeyconfig.groups.SettingGroup
 import xd.arkosammy.monkeyconfig.groups.MutableSettingGroup
 
-open class YamlConfigManager : AbstractConfigManager {
+// Internal class as it's not ready to be used yet
+internal class YamlConfigManager : AbstractConfigManager {
 
     constructor(
         configName: String,

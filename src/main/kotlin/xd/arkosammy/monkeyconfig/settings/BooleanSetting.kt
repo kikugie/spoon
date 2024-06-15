@@ -13,15 +13,11 @@ open class BooleanSetting @JvmOverloads constructor(
     defaultValue: Boolean,
     value: Boolean = defaultValue) : ConfigSetting<Boolean, BooleanType>(settingLocation, comment, defaultValue, value), CommandControllableSetting<Boolean, BoolArgumentType> {
 
-    override val serializedValue: BooleanType
-        get() = BooleanType(this.value)
+    override val valueToSerializedConverter: (Boolean) -> BooleanType
+        get() = { boolean -> BooleanType(boolean) }
 
-    override val serializedDefaultValue: BooleanType
-        get() = BooleanType(this.defaultValue)
-
-    override fun setValueFromSerialized(serializedValue: BooleanType) {
-        this.value = serializedValue.value
-    }
+    override val serializedToValueConverter: (BooleanType) -> Boolean
+        get() = { booleanType -> booleanType.rawValue }
 
     override val commandIdentifier: SettingLocation
         get() = this.settingLocation

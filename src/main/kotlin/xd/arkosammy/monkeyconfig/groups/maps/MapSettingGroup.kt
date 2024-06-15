@@ -6,7 +6,6 @@ import xd.arkosammy.monkeyconfig.groups.SettingGroup
 import xd.arkosammy.monkeyconfig.types.SerializableType
 import xd.arkosammy.monkeyconfig.util.SettingLocation
 
-
 /**
  * This implementation
  * of [SettingGroup] associates each of the [ConfigSetting] instances to its [SettingLocation] name.
@@ -15,10 +14,11 @@ import xd.arkosammy.monkeyconfig.util.SettingLocation
  * thus, it shouldn't be used to create [CommandControllableSetting] instances,
  * as the entries of this table can change during runtime by editing the config file.
  *
- * @param [V] The type of the values that will be written to and read from the configuration file.
- * [V] must be an instance of [SerializableType]
+ * @param [V] The type of the values that this [MapSettingGroup] holds in memory.
+ * @param [S] The [SerializableType] that will be used to write and read this [MapSettingGroup]'s values from the configuration file.
  */
-interface MapSettingGroup<V : SerializableType<*>> : SettingGroup {
+interface MapSettingGroup<V, S : SerializableType<*>> : SettingGroup {
+
 
     /**
      * Returns the [SerializableType] instance associated to the [key] parameter.
@@ -33,5 +33,6 @@ interface MapSettingGroup<V : SerializableType<*>> : SettingGroup {
 
     override val registerSettingsAsCommands: Boolean
         get() = false
+
 
 }

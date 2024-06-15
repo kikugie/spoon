@@ -14,15 +14,11 @@ open class IdentifierSetting @JvmOverloads constructor(
     override val defaultValue: Identifier,
     override var value: Identifier = defaultValue) : ConfigSetting<Identifier, StringType>(settingLocation, comment, defaultValue, value), CommandControllableSetting<Identifier, IdentifierArgumentType> {
 
-    override val serializedValue: StringType
-        get() = StringType(this.value.toString())
+    override val valueToSerializedConverter: (Identifier) -> StringType
+        get() = { identifier -> StringType(identifier.toString()) }
 
-    override val serializedDefaultValue: StringType
-        get() = StringType(this.defaultValue.toString())
-
-    override fun setValueFromSerialized(serializedValue: StringType) {
-        this.value = Identifier(serializedValue.value)
-    }
+    override val serializedToValueConverter: (StringType) -> Identifier
+        get() = { stringType -> Identifier(stringType.rawValue) }
 
     override val argumentType: IdentifierArgumentType
         get() = IdentifierArgumentType.identifier()

@@ -3,7 +3,6 @@ package xd.arkosammy.monkeyconfig.settings
 import xd.arkosammy.monkeyconfig.types.EnumType
 import xd.arkosammy.monkeyconfig.util.SettingLocation
 
-// TODO: Test this!!
 open class EnumSetting<E : Enum<E>> @JvmOverloads constructor(
     settingLocation: SettingLocation,
     comment: String? = null,
@@ -12,15 +11,12 @@ open class EnumSetting<E : Enum<E>> @JvmOverloads constructor(
 
     val enumClass: Class<E> = defaultValue.declaringJavaClass
 
-    override val serializedValue: EnumType<E>
-        get() = EnumType(this.value)
+    override val valueToSerializedConverter: (E) -> EnumType<E>
+        get() = { enumInstance -> EnumType(enumInstance) }
 
-    override val serializedDefaultValue: EnumType<E>
-        get() = EnumType(this.defaultValue)
+    override val serializedToValueConverter: (EnumType<E>) -> E
+        get() = { enumType -> enumType.rawValue }
 
-    override fun setValueFromSerialized(serializedValue: EnumType<E>) {
-        this.value = serializedValue.value
-    }
     open class Builder<E : Enum<E>> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: E) : ConfigSetting.Builder< EnumSetting<E>, E, EnumType<E>>(settingLocation, comment, defaultValue) {
 
         override fun build(): EnumSetting<E> {

@@ -93,9 +93,9 @@ interface SettingGroup {
      */
     fun setValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
-            val settingLocation = "${setting.settingLocation.groupName}.${setting.settingLocation.settingName}"
-            val valueAsSerialized: SerializableType<*> = setting.serializedValue
-            fileConfig.set<Any>(settingLocation, if(valueAsSerialized is ListType<*>) valueAsSerialized.fullyDeserializedList else valueAsSerialized.value)
+            val settingLocation = "${this.name}.${setting.settingLocation.settingName}"
+            val serializedSettingValue: SerializableType<*> = setting.serializedValue
+            fileConfig.set<Any>(settingLocation, if(serializedSettingValue is ListType<*>) serializedSettingValue.rawList else serializedSettingValue.rawValue)
             setting.comment?.let { comment ->
                 if(fileConfig is CommentedFileConfig) fileConfig.setComment(settingLocation, comment)
             }
@@ -103,8 +103,8 @@ interface SettingGroup {
         this.comment?.let { comment ->
             if(fileConfig is CommentedFileConfig) fileConfig.setComment(this.name, comment)
         }
-        val configSection: Config = fileConfig.get(this.name)
-        configSection.entrySet().removeIf { entry -> !this.containsSettingName(entry.key)}
+        val configSection: Config = fileConfig.get(this.name) ?: return
+        configSection.entrySet().removeIf { entry -> !this.containsSettingName(entry.key) }
     }
 
     /**
@@ -114,15 +114,15 @@ interface SettingGroup {
      */
     fun loadValues(fileConfig: FileConfig) {
         for(setting: ConfigSetting<*, *> in this.configSettings) {
-            val settingLocation = "${setting.settingLocation.groupName}.${setting.settingLocation.settingName}"
-            val defaultDeserializedValue: Any = setting.serializedDefaultValue.value
+            val settingLocation = "${this.name}.${setting.settingLocation.settingName}"
+            val defaultRawValue: Any = setting.serializedDefaultValue.rawValue
             val rawValue: Any = if (setting is EnumSetting<*>) {
-                fileConfig.getEnum(settingLocation, setting.enumClass) ?: defaultDeserializedValue
+                fileConfig.getEnum(settingLocation, setting.enumClass) ?: defaultRawValue
             } else {
-                fileConfig.getOrElse(settingLocation, defaultDeserializedValue) ?: defaultDeserializedValue
+                fileConfig.getOrElse(settingLocation, defaultRawValue) ?: defaultRawValue
             }
-            val deserializedValue: SerializableType<*> = toSerializedType(rawValue)
-            setValueSafely(setting, deserializedValue)
+            val serializedRawValue: SerializableType<*> = toSerializedType(rawValue)
+            setValueSafely(setting, serializedRawValue)
         }
     }
 
