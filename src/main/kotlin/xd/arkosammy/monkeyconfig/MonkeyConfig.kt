@@ -9,8 +9,8 @@ import xd.arkosammy.monkeyconfig.registrars.DefaultConfigRegistrar
 // TODO: Continue properly documenting
 object MonkeyConfig : ModInitializer {
 
-	const val MOD_ID: String = "monkeyconfig"
-	val LOGGER: Logger = LoggerFactory.getLogger(MOD_ID)
+	internal const val MOD_ID: String = "monkeyconfig"
+	internal val LOGGER: Logger = LoggerFactory.getLogger(MOD_ID)
 
 	override fun onInitialize() {
 

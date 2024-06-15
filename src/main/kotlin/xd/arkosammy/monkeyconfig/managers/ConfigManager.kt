@@ -66,6 +66,15 @@ interface ConfigManager {
      */
     fun getSettingGroup(groupName: String) : SettingGroup?
 
+    /**
+     * Checks whether this [ConfigManager] contains a [SettingGroup] with a matching [settingGroupName].
+     *
+     * @param [settingGroupName] The name of the [SettingGroup] to look for.
+     * @return whether this [ConfigManager] contains a [SettingGroup] whose name matches [settingGroupName].
+     */
+    fun containsSettingGroupName(settingGroupName: String) =
+        this.settingGroups.any { settingGroup ->  settingGroup.name == settingGroupName}
+
 }
 
 inline fun <V, reified T : ConfigSetting<V, *>> ConfigManager.getTypedSetting(settingId: SettingLocation) : T? {

@@ -35,4 +35,11 @@ open class BlockPosSetting @JvmOverloads constructor(
         return BlockPosArgumentType.getBlockPos(ctx, argumentName)
     }
 
+    class  Builder @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: BlockPos) : ConfigSetting.Builder<BlockPosSetting, BlockPos, ListType<NumberType<Int>>>(settingLocation, comment, defaultValue) {
+        override fun build(): BlockPosSetting {
+            return BlockPosSetting(settingLocation, comment, defaultValue)
+        }
+
+    }
+
 }

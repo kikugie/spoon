@@ -141,6 +141,15 @@ abstract class AbstractConfigManager : ConfigManager {
                 }
                 settingGroup.setValues(fileConfig)
             }
+            // Remove unused setting groups and their settings
+            fileConfig.entrySet().removeIf { settingGroupEntry ->
+                if (!this.containsSettingGroupName(settingGroupEntry.key)) {
+                    fileConfig.get<Config>(settingGroupEntry.key).entrySet().clear()
+                    true
+                } else {
+                    false
+                }
+            }
             fileConfig.save()
             for(settingGroup: SettingGroup in this.settingGroups) {
                 settingGroup.onSavedToFile()

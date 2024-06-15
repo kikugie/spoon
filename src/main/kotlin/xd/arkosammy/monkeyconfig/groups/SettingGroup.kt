@@ -127,7 +127,7 @@ interface SettingGroup {
     }
 
     /**
-     * Checks whether this [SettingGroup] contains [ConfigSetting] with a matching [settingName].
+     * Checks whether this [SettingGroup] contains a [ConfigSetting] with a matching [settingName].
      *
      * @param [settingName] The name of the [ConfigSetting] to look for.
      * @return whether this [SettingGroup] contains a [ConfigSetting] whose name matches [settingName].

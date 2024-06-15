@@ -34,4 +34,11 @@ open class IdentifierSetting @JvmOverloads constructor(
         return IdentifierArgumentType.getIdentifier(ctx, argumentName)
     }
 
+    class  Builder @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: Identifier) : ConfigSetting.Builder<IdentifierSetting, Identifier, StringType>(settingLocation, comment, defaultValue) {
+        override fun build(): IdentifierSetting {
+            return IdentifierSetting(settingLocation, comment, defaultValue)
+        }
+
+    }
+
 }
