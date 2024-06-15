@@ -9,6 +9,7 @@ import xd.arkosammy.monkeyconfig.util.SettingLocation;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public enum MyTestSettings {
@@ -24,10 +25,10 @@ public enum MyTestSettings {
 
     // Special settings
     //BLOCK_POS_SETTING(new BlockPosSetting.Builder<>(new SettingLocation("specialTable", "myBlockPosSetting"), new BlockPos(1, 2, 3))),
-    IDENTIFIER_SETTING(new IdentifierSetting.Builder(new SettingLocation("specialTable", "myIdentifierSetting"), new Identifier("monkey", "test")));
+    IDENTIFIER_SETTING(new IdentifierSetting.Builder(new SettingLocation("specialTable", "myIdentifierSetting"), Objects.requireNonNull(Identifier.of("monkey", "test"))));
 
     // List settings
-    //BOOLEAN_LIST_SETTING(new BooleanListSetting.Builder(new SettingLocation("listTable", "myBooleanListSetting"), null, Arrays.asList(true, false, false, true))),
+    //BOOLEAN_LIST_SETTING(new BooleanListSetting.Builder(new SettingLocation("listTable", "myBooleanListSetting"), null, Arrays.asList(true, false, false, true)));
     //NUMBER_LIST_SETTING(new NumberListSetting.Builder<>(new SettingLocation("listTable", "myIntListSetting"), null, Arrays.asList(2, 4, 6, 8, 10))),
     //STRING_LIST_SETTING(new StringListSetting.Builder(new SettingLocation("listTable", "myStringListSetting"), null, Arrays.asList("hello", "my", "name", "is", "arkosammy12")));
 

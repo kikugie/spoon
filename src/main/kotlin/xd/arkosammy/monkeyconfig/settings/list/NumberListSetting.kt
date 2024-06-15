@@ -11,15 +11,11 @@ open class NumberListSetting<T : Number> @JvmOverloads constructor(
     defaultValue: List<T>,
     value: List<T> = defaultValue) : ListSetting<T, NumberType<T>>(settingLocation, comment, defaultValue, value) {
 
-    override val serializedValue: ListType<NumberType<T>>
-        get() = ListType(this.value.toList().map { e -> NumberType(e) })
+    override val valueToSerializedConverter: (List<T>) -> ListType<NumberType<T>>
+        get() = { numberList -> ListType(numberList.toList().map { e -> NumberType(e) }) }
 
-    override val serializedDefaultValue: ListType<NumberType<T>>
-        get() = ListType(this.defaultValue.toList().map { e -> NumberType(e) })
-
-    override fun setValueFromSerialized(serializedValue: ListType<NumberType<T>>) {
-        this.value = serializedValue.value.toList().map { e -> e.value }
-    }
+    override val serializedToValueConverter: (ListType<NumberType<T>>) -> List<T>
+        get() = { serializedNumberList -> serializedNumberList.rawValue.toList().map { e -> e.rawValue } }
 
     class Builder<T : Number> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: List<T>) : ListSetting.Builder<T, NumberType<T>>(settingLocation, comment, defaultValue) {
 

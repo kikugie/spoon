@@ -8,7 +8,6 @@ import net.minecraft.command.CommandSource
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.StringIdentifiable
 import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
-import xd.arkosammy.monkeyconfig.types.EnumType
 import xd.arkosammy.monkeyconfig.util.SettingLocation
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -52,7 +51,7 @@ class CommandControllableEnumSetting<E> @JvmOverloads constructor(
         )
     }
 
-    open class Builder<E> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: E) : ConfigSetting.Builder<EnumSetting<E>, E, EnumType<E>>(settingLocation, comment, defaultValue) where E : Enum<E>, E : StringIdentifiable {
+    open class Builder<E> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: E) : EnumSetting.Builder<E>(settingLocation, comment, defaultValue) where E : Enum<E>, E : StringIdentifiable {
 
         override fun build(): EnumSetting<E> {
             return CommandControllableEnumSetting(this.settingLocation, this.comment, this.defaultValue)

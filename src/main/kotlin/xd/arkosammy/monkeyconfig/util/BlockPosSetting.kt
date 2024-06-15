@@ -15,15 +15,11 @@ open class BlockPosSetting @JvmOverloads constructor(
     override val defaultValue: BlockPos,
     override var value: BlockPos = defaultValue) : ConfigSetting<BlockPos, ListType<NumberType<Int>>>(settingLocation, comment, defaultValue, value), CommandControllableSetting<BlockPos, BlockPosArgumentType> {
 
-    override val serializedValue: ListType<NumberType<Int>>
-        get() = ListType(listOf(NumberType(this.value.x), NumberType(this.value.y), NumberType(this.value.z)))
+    override val valueToSerializedConverter: (BlockPos) -> ListType<NumberType<Int>>
+        get() = { blockPos -> ListType(listOf(NumberType(blockPos.x), NumberType(blockPos.y), NumberType(blockPos.z))) }
 
-    override val serializedDefaultValue: ListType<NumberType<Int>>
-        get() = ListType(listOf(NumberType(this.defaultValue.x), NumberType(this.defaultValue.y), NumberType(this.defaultValue.z)))
-
-    override fun setValueFromSerialized(serializedValue: ListType<NumberType<Int>>) {
-        this.value = BlockPos(serializedValue.value[0].value, serializedValue.value[1].value, serializedValue.value[2].value)
-    }
+    override val serializedToValueConverter: (ListType<NumberType<Int>>) -> BlockPos
+        get() = { serializedBlockPos -> BlockPos(serializedBlockPos.rawValue[0].rawValue, serializedBlockPos.rawValue[1].rawValue, serializedBlockPos.rawValue[2].rawValue) }
 
     override val argumentType: BlockPosArgumentType
         get() = BlockPosArgumentType.blockPos()

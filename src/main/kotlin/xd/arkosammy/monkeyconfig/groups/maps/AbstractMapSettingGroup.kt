@@ -14,18 +14,42 @@ import xd.arkosammy.monkeyconfig.types.toSerializedType
  * Base implementation of [MapSettingGroup].
  * This class should be used as a reference for how to implement a custom [MapSettingGroup].
  */
-abstract class AbstractMapSettingGroup<V : SerializableType<*>> @JvmOverloads constructor(
-    override val name: String,
+abstract class AbstractMapSettingGroup<V : Any, S : SerializableType<*>> @JvmOverloads constructor(
+    final override val name: String,
     override val comment: String? = null,
-    defaultEntries: List<ConfigSetting<V, V>>,
-    mapEntries: List<ConfigSetting<V, V>> = defaultEntries) : MapSettingGroup<V> {
+    defaultEntries: Map<String, V>,
+    mapEntries: Map<String, V> = defaultEntries) : MapSettingGroup<V, S> {
 
-    override val configSettings: List<ConfigSetting<V, V>>
+    constructor(name: String, comment: String?, defaultEntries: List<ConfigSetting<V, S>>, entries: List<ConfigSetting<V, S>> = defaultEntries) : this(name, comment,
+        defaultEntries.associate { setting ->
+            Pair(setting.settingLocation.settingName, setting.value)
+        }, entries.associate { setting ->
+            Pair(setting.settingLocation.settingName, setting.value)
+        }
+    )
+
+    override val configSettings: List<ConfigSetting<V, S>>
         get() = mapEntries.toList()
 
-    protected var mapEntries: MutableList<ConfigSetting<V, V>> = mapEntries.toMutableList()
-    protected val defaultTableEntries: List<ConfigSetting<V, V>> = defaultEntries.toList()
+    protected var mapEntries: MutableList<ConfigSetting<V, S>>
+    protected val defaultTableEntries: List<ConfigSetting<V, S>>
     protected var _isRegistered: Boolean = false
+
+    init {
+        val settingEntries: MutableList<ConfigSetting<V, S>> = mutableListOf()
+        for((key, value) in mapEntries) {
+            val newSetting: ConfigSetting<V, S> = this.getMapEntryFromValue(SettingLocation(this.name, key), value)
+            settingEntries.add(newSetting)
+        }
+
+        val defaultSettingEntries: MutableList<ConfigSetting<V, S>> = mutableListOf()
+        for((key, value) in defaultEntries) {
+            val newSetting: ConfigSetting<V, S> = this.getMapEntryFromValue(SettingLocation(this.name, key), value)
+            defaultSettingEntries.add(newSetting)
+        }
+        this.mapEntries = settingEntries.toMutableList()
+        this.defaultTableEntries = defaultSettingEntries.toMutableList()
+    }
 
     override val isRegistered: Boolean
         get() = this._isRegistered
@@ -51,10 +75,10 @@ abstract class AbstractMapSettingGroup<V : SerializableType<*>> @JvmOverloads co
 
     override fun setValues(fileConfig: FileConfig) {
         if(this.mapEntries.isNotEmpty()) {
-            for(setting: ConfigSetting<V, V> in this.mapEntries) {
+            for(setting: ConfigSetting<V, S> in this.mapEntries) {
                 val settingAddress = "${this.name}.${setting.settingLocation.settingName}"
-                val valueAsSerialized: V = setting.serializedValue
-                fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.fullyDeserializedList else valueAsSerialized.value)
+                val valueAsSerialized: S = setting.serializedValue
+                fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.rawList else valueAsSerialized.rawValue)
             }
         }
         this.comment?.let { comment ->
@@ -62,43 +86,29 @@ abstract class AbstractMapSettingGroup<V : SerializableType<*>> @JvmOverloads co
         }
     }
 
-    // TODO: Make sure this cast always succeeds
-    @Suppress("UNCHECKED_CAST")
     override fun loadValues(fileConfig: FileConfig) {
-        val config: Config = fileConfig.get(this.name)
-        val tempEntries: MutableList<ConfigSetting<V, V>> = mutableListOf()
+        val config: Config = fileConfig.get(this.name) ?: run {
+            MonkeyConfig.LOGGER.error("Found no SettingGroup with name ${this.name} to load values from!")
+            return
+        }
+        val tempEntries: MutableList<ConfigSetting<V, S>> = mutableListOf()
         for(entry: Config.Entry in config.entrySet()) {
-            val readValue: Any = entry.getValue()
-            val deserializedValue: SerializableType<*> = toSerializedType(readValue)
-
-            // The following unsafe cast operation is done under the assumption
-            // that this MapConfigTable instance wrote values of type V as their actual values.
-            // If that's the case, then we should only read back values of type V
-            // after the raw value is converted to its serialized form.
-            // For example, if this object is an instance of MapConfigTable<StringType>,
-            // then strings should be written to the config file under this table,
-            // and then read back as strings, then mapped to StringType instances.
-            // If that holds true, then the cast to V should be successful,
-            // as StringType matches the type parameter of this MapConfigTable instance.
-            try {
-                val setting: ConfigSetting<V, V> = object : ConfigSetting<V, V>(SettingLocation(this.name, entry.key), defaultValue = deserializedValue as V) {
-                    override val serializedValue: V
-                        get() = this.value
-                    override val serializedDefaultValue: V
-                        get() = this.defaultValue
-
-                    override fun setValueFromSerialized(serializedValue: V) {
-                        this.value = serializedValue
-                    }
-                }
-                tempEntries.add(setting)
-            } catch (e: ClassCastException) {
-                MonkeyConfig.LOGGER.error("Unexpected value \"$readValue\" of type \"${readValue::class.simpleName}\" found for ${this::class.simpleName} of name ${this.name}. This entry will not be added to this setting group.")
+            val rawEntryValue: Any = entry.getValue()
+            val serializedEntryValue: SerializableType<*> = toSerializedType(rawEntryValue)
+            val newMapEntry: ConfigSetting<V, S>? = this.getMapEntryFromSerialized(SettingLocation(this.name, entry.key), serializedEntryValue)
+            if (newMapEntry == null) {
+                MonkeyConfig.LOGGER.error("Unable to read value of entry ${entry.key} from MapSettingGroup ${this.name}! This entry will be skipped.")
+                continue
             }
+            tempEntries.add(newMapEntry)
         }
         this.mapEntries.clear()
         this.mapEntries.addAll(tempEntries)
     }
+
+    protected abstract fun getMapEntryFromSerialized(settingLocation: SettingLocation, serializedEntry: SerializableType<*>) : ConfigSetting<V, S>?
+
+    protected abstract fun getMapEntryFromValue(settingLocation: SettingLocation, defaultValue: V, value: V = defaultValue) : ConfigSetting<V, S>
 
     override fun toString(): String {
         return "${this::class.simpleName}{name=${this.name}, comment=${this.comment ?: "null"}, settingAmount=${this.configSettings.size}, registered=$isRegistered, loadBeforeSave=$loadBeforeSave, registerSettingsAsCommands=$registerSettingsAsCommands}"

@@ -20,12 +20,36 @@ abstract class ConfigSetting<T, S : SerializableType<*>> @JvmOverloads construct
     open val defaultValue: T,
     open var value: T = defaultValue) {
 
-    abstract val serializedValue: S
+    /**
+     * The value of this [ConfigSetting] converted to a type that can be written to and read from a config file.
+     * Use this when serializing this [ConfigSetting].
+     */
+    val serializedValue: S
+        get() = valueToSerializedConverter(this.value)
 
-    abstract val serializedDefaultValue: S
+    /**
+     * The default value of this [ConfigSetting] converted to a type that can be written to and read from a config file.
+     * Use this when serializing this [ConfigSetting].
+     */
+    val serializedDefaultValue: S
+        get() = valueToSerializedConverter(this.defaultValue)
 
-    abstract fun setValueFromSerialized(serializedValue: S)
+    protected abstract val valueToSerializedConverter: (T) -> S
 
+    protected abstract val serializedToValueConverter: (S) -> T
+
+    /**
+     * Sets the value of this [ConfigSetting] using the corresponding [SerializableType] instance.
+     * This [ConfigSetting] instance maps the [SerializableType] to an instance of the value
+     * that this [ConfigSetting] holds.
+     */
+    fun setValueFromSerialized(serializedValue: S) {
+        this.value = serializedToValueConverter(serializedValue)
+    }
+
+    /**
+     * Sets the value of this [ConfigSetting] to its default value.
+     */
     fun resetValue() {
         this.value = this.defaultValue
     }

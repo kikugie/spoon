@@ -33,18 +33,14 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
             super.value = value
         }
 
-    override fun setValueFromSerialized(serializedValue: NumberType<T>) {
-        this.value = serializedValue.value
-    }
+    override val valueToSerializedConverter: (T) -> NumberType<T>
+        get() = { number -> NumberType(number) }
+
+    override val serializedToValueConverter: (NumberType<T>) -> T
+        get() = { numberType -> numberType.rawValue }
 
     override val commandIdentifier: SettingLocation
         get() = settingLocation
-
-    override val serializedValue: NumberType<T>
-        get() = NumberType(this.value)
-
-    override val serializedDefaultValue: NumberType<T>
-        get() = NumberType(this.defaultValue)
 
     override val argumentType: ArgumentType<T>
         @Throws(IllegalArgumentException::class)
@@ -66,14 +62,12 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
     // then the branch taken in this method should result in a DoubleArgumentType being returned.
     // DoubleArgumentType implements ArgumentType<Double>, so the cast should be successful.
     @Suppress("UNCHECKED_CAST")
-    // TODO: TEST
     private fun getByteArgumentType(): ArgumentType<T> {
         val min = max(Byte.MIN_VALUE.toInt(), lowerBound?.toInt() ?: Byte.MIN_VALUE.toInt())
         val max = min(Byte.MAX_VALUE.toInt(), upperBound?.toInt() ?: Byte.MAX_VALUE.toInt())
         return IntegerArgumentType.integer(min, max) as ArgumentType<T>
     }
 
-    // TODO: TEST
     @Suppress("UNCHECKED_CAST")
     private fun getShortArgumentType(): ArgumentType<T> {
         val min = max(Short.MIN_VALUE.toInt(), lowerBound?.toInt() ?: Short.MIN_VALUE.toInt())
@@ -109,7 +103,6 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
         return DoubleArgumentType.doubleArg(min, max) as ArgumentType<T>
     }
 
-    // TODO: Test this
     @Suppress("UNCHECKED_CAST")
     override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): T {
         // The following unchecked cast operations are done under the assumption
