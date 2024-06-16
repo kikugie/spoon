@@ -81,14 +81,14 @@ inline fun <V, reified T : ConfigSetting<V, *>> ConfigManager.getTypedSetting(se
     return this.getTypedSetting(settingLocation, T::class.java)
 }
 
-fun ConfigManager.getAsIntSetting(settingId: SettingLocation) : NumberSetting<Int>? = this.getTypedSetting<Int, NumberSetting<Int>>(settingId)
+fun ConfigManager.getAsIntSetting(settingLocation: SettingLocation) : NumberSetting<Int>? = this.getTypedSetting<Int, NumberSetting<Int>>(settingLocation)
 
-fun ConfigManager.getAsDoubleSetting(settingId: SettingLocation) : NumberSetting<Double>? = this.getTypedSetting<Double, NumberSetting<Double>>(settingId)
+fun ConfigManager.getAsDoubleSetting(settingLocation: SettingLocation) : NumberSetting<Double>? = this.getTypedSetting<Double, NumberSetting<Double>>(settingLocation)
 
-fun ConfigManager.getAsBooleanSetting(settingId: SettingLocation) : BooleanSetting? = this.getTypedSetting<Boolean, BooleanSetting>(settingId)
+fun ConfigManager.getAsBooleanSetting(settingLocation: SettingLocation) : BooleanSetting? = this.getTypedSetting<Boolean, BooleanSetting>(settingLocation)
 
-fun ConfigManager.getAsStringSetting(settingId: SettingLocation) : StringSetting? = this.getTypedSetting<String, StringSetting>(settingId)
+fun ConfigManager.getAsStringSetting(settingLocation: SettingLocation) : StringSetting? = this.getTypedSetting<String, StringSetting>(settingLocation)
 
-fun ConfigManager.getAsStringListSetting(settingId: SettingLocation) : StringListSetting? = this.getTypedSetting<List<String>, StringListSetting>(settingId)
+fun ConfigManager.getAsStringListSetting(settingLocation: SettingLocation) : StringListSetting? = this.getTypedSetting<List<String>, StringListSetting>(settingLocation)
 
 fun <E : Enum<E>> ConfigManager.getAsEnumSetting(settingLocation: SettingLocation) : EnumSetting<E>? = this.getTypedSetting<E, EnumSetting<E>>(settingLocation)
