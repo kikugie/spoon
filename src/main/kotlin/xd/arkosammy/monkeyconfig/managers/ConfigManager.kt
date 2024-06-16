@@ -91,4 +91,4 @@ fun ConfigManager.getAsStringSetting(settingId: SettingLocation) : StringSetting
 
 fun ConfigManager.getAsStringListSetting(settingId: SettingLocation) : StringListSetting? = this.getTypedSetting<List<String>, StringListSetting>(settingId)
 
-fun <E : Enum<E>> ConfigManager.getAsEnumSEtting(settingLocation: SettingLocation) : EnumSetting<E>? = this.getTypedSetting<E, EnumSetting<E>>(settingLocation)
+fun <E : Enum<E>> ConfigManager.getAsEnumSetting(settingLocation: SettingLocation) : EnumSetting<E>? = this.getTypedSetting<E, EnumSetting<E>>(settingLocation)

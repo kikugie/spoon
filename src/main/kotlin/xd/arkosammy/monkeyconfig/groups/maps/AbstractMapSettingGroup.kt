@@ -67,6 +67,15 @@ abstract class AbstractMapSettingGroup<V : Any, S : SerializableType<*>> @JvmOve
         return null
     }
 
+    override fun contains(key: String): Boolean {
+        for (mapEntry: ConfigSetting<V, S> in this.mapEntries) {
+            if (mapEntry.settingLocation.settingName == key) {
+                return true
+            }
+        }
+        return false
+    }
+
     override fun setDefaultValues(fileConfig: FileConfig) {
         this.mapEntries.clear()
         this.mapEntries.addAll(this.defaultTableEntries)
