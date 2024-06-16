@@ -77,8 +77,8 @@ interface ConfigManager {
 
 }
 
-inline fun <V, reified T : ConfigSetting<V, *>> ConfigManager.getTypedSetting(settingId: SettingLocation) : T? {
-    return this.getTypedSetting(settingId, T::class.java)
+inline fun <V, reified T : ConfigSetting<V, *>> ConfigManager.getTypedSetting(settingLocation: SettingLocation) : T? {
+    return this.getTypedSetting(settingLocation, T::class.java)
 }
 
 fun ConfigManager.getAsIntSetting(settingId: SettingLocation) : NumberSetting<Int>? = this.getTypedSetting<Int, NumberSetting<Int>>(settingId)
@@ -90,3 +90,5 @@ fun ConfigManager.getAsBooleanSetting(settingId: SettingLocation) : BooleanSetti
 fun ConfigManager.getAsStringSetting(settingId: SettingLocation) : StringSetting? = this.getTypedSetting<String, StringSetting>(settingId)
 
 fun ConfigManager.getAsStringListSetting(settingId: SettingLocation) : StringListSetting? = this.getTypedSetting<List<String>, StringListSetting>(settingId)
+
+fun <E : Enum<E>> ConfigManager.getAsEnumSEtting(settingLocation: SettingLocation) : EnumSetting<E>? = this.getTypedSetting<E, EnumSetting<E>>(settingLocation)

@@ -27,6 +27,12 @@ interface MapSettingGroup<V, S : SerializableType<*>> : SettingGroup {
      */
     fun get(key: String) : V?
 
+    /**
+     * @param [key] The name of the map entry to look for in this [MapSettingGroup]
+     * @returns Whether a map entry of name [key] is contained in this [MapSettingGroup]
+     */
+    fun contains(key: String) : Boolean
+
     override val loadBeforeSave : Boolean
         get() = true
 
