@@ -6,10 +6,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import xd.arkosammy.monkeyconfig.registrars.DefaultConfigRegistrar
 
-object MonkeyConfig : ModInitializer {
+internal object MonkeyConfig : ModInitializer {
 
-	internal const val MOD_ID: String = "monkeyconfig"
-	internal val LOGGER: Logger = LoggerFactory.getLogger(MOD_ID)
+	const val MOD_ID: String = "monkeyconfig"
+	val LOGGER: Logger = LoggerFactory.getLogger(MOD_ID)
 
 	override fun onInitialize() {
 
