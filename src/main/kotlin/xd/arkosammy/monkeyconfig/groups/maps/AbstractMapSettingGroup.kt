@@ -59,9 +59,9 @@ abstract class AbstractMapSettingGroup<V : Any, S : SerializableType<*>> @JvmOve
     }
 
     override fun get(key: String) : V? {
-        this.mapEntries.forEach { tableEntry ->
-            if(tableEntry.settingLocation.settingName == key) {
-                return tableEntry.value
+        for (mapEntry: ConfigSetting<V, S> in this.mapEntries) {
+            if (mapEntry.settingLocation.settingName == key) {
+                return mapEntry.value
             }
         }
         return null

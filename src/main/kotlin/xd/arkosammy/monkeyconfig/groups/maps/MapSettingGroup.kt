@@ -19,12 +19,11 @@ import xd.arkosammy.monkeyconfig.util.SettingLocation
  */
 interface MapSettingGroup<V, S : SerializableType<*>> : SettingGroup {
 
-
     /**
-     * Returns the [SerializableType] instance associated to the [key] parameter.
+     * Returns the value associated to the [key]
      *
-     * @param key The [SettingLocation] name of the [ConfigSetting]
-     * @return the [SerializableType] instance if found, or `null` otherwise
+     * @param [key] The name of the map entry to look for in this [MapSettingGroup]
+     * @return the value [V] of the map entry if found, or `null` otherwise.
      */
     fun get(key: String) : V?
 
@@ -33,6 +32,5 @@ interface MapSettingGroup<V, S : SerializableType<*>> : SettingGroup {
 
     override val registerSettingsAsCommands: Boolean
         get() = false
-
 
 }
