@@ -84,17 +84,17 @@ abstract class AbstractConfigManager : ConfigManager {
         val newGroups: MutableList<MutableSettingGroup> = settingGroups?.toMutableList() ?: mutableListOf()
         for(settingBuilder: ConfigSetting.Builder<*, *, *> in settingBuilders) {
             val settingGroupName: String = settingBuilder.settingLocation.groupName
-            // Create a new DefaultSettingGroup if a table for this setting builder isn't found
+            // Create a new DefaultSettingGroup if a setting group for this setting builder isn't found
             if(!newGroups.any { group -> group.name == settingGroupName}) {
                 val newGroup: MutableSettingGroup = DefaultMutableSettingGroup(settingGroupName, configSettings = mutableListOf())
-                MonkeyConfig.LOGGER.warn("Found no configuration table for setting: ${settingBuilder.settingLocation.settingName}: A new config table named $settingGroupName will be added to this ${this::class.simpleName} with name ${this.configName}")
+                MonkeyConfig.LOGGER.warn("Found no setting group for setting: ${settingBuilder.settingLocation.settingName}: A new setting group named $settingGroupName will be added to this ${this::class.simpleName} with name ${this.configName}")
                 newGroups.add(newGroup)
             }
-            for(configTable: MutableSettingGroup in newGroups) {
-                if(configTable.name != settingGroupName) {
+            for(settingGroup: MutableSettingGroup in newGroups) {
+                if(settingGroup.name != settingGroupName) {
                     continue
                 }
-                configTable.addConfigSetting(settingBuilder.build())
+                settingGroup.addConfigSetting(settingBuilder.build())
             }
         }
         this.settingGroups = newGroups.toList().map(MutableSettingGroup::toImmutable)

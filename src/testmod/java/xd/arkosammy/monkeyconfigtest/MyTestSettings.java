@@ -1,9 +1,14 @@
 package xd.arkosammy.monkeyconfigtest;
 
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import xd.arkosammy.monkeyconfig.settings.CommandControllableEnumSetting;
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting;
 import xd.arkosammy.monkeyconfig.settings.NumberSetting;
+import xd.arkosammy.monkeyconfig.settings.list.BooleanListSetting;
+import xd.arkosammy.monkeyconfig.settings.list.NumberListSetting;
+import xd.arkosammy.monkeyconfig.settings.list.StringListSetting;
+import xd.arkosammy.monkeyconfig.util.BlockPosSetting;
 import xd.arkosammy.monkeyconfig.util.IdentifierSetting;
 import xd.arkosammy.monkeyconfig.util.SettingLocation;
 
@@ -24,13 +29,13 @@ public enum MyTestSettings {
     MY_DOUBLE_SETTING(new NumberSetting.Builder<>(new SettingLocation("numTable", "myDoubleSetting"), 1.0d)),
 
     // Special settings
-    //BLOCK_POS_SETTING(new BlockPosSetting.Builder<>(new SettingLocation("specialTable", "myBlockPosSetting"), new BlockPos(1, 2, 3))),
-    IDENTIFIER_SETTING(new IdentifierSetting.Builder(new SettingLocation("specialTable", "myIdentifierSetting"), Objects.requireNonNull(Identifier.of("monkey", "test"))));
+    BLOCK_POS_SETTING(new BlockPosSetting.Builder(new SettingLocation("specialTable", "myBlockPosSetting"), new BlockPos(1, 2, 3))),
+    IDENTIFIER_SETTING(new IdentifierSetting.Builder(new SettingLocation("specialTable", "myIdentifierSetting"), Objects.requireNonNull(Identifier.of("monkey", "test")))),
 
     // List settings
-    //BOOLEAN_LIST_SETTING(new BooleanListSetting.Builder(new SettingLocation("listTable", "myBooleanListSetting"), null, Arrays.asList(true, false, false, true)));
-    //NUMBER_LIST_SETTING(new NumberListSetting.Builder<>(new SettingLocation("listTable", "myIntListSetting"), null, Arrays.asList(2, 4, 6, 8, 10))),
-    //STRING_LIST_SETTING(new StringListSetting.Builder(new SettingLocation("listTable", "myStringListSetting"), null, Arrays.asList("hello", "my", "name", "is", "arkosammy12")));
+    BOOLEAN_LIST_SETTING(new BooleanListSetting.Builder(new SettingLocation("listTable", "myBooleanListSetting"), null, Arrays.asList(true, false, false, true))),
+    NUMBER_LIST_SETTING(new NumberListSetting.Builder<>(new SettingLocation("listTable", "myIntListSetting"), null, Arrays.asList(2, 4, 6, 8, 10))),
+    STRING_LIST_SETTING(new StringListSetting.Builder(new SettingLocation("listTable", "myStringListSetting"), null, Arrays.asList("hello", "my", "name", "is", "arkosammy12")));
 
     private final ConfigSetting.Builder<?, ?, ?> builder;
 

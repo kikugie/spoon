@@ -16,8 +16,8 @@ import xd.arkosammy.monkeyconfig.groups.SettingGroup
 
 
 /**
- * Default implementation of [AbstractCommandVisitor] that creates a [LiteralCommandNode] for the [configNode],
- * as well as a node for the "reload" command.
+ * Default implementation of [CommandVisitor] that creates a [LiteralCommandNode] for editing configuration settings,
+ * as well as a node for a "reload" command to reload the [ConfigManager] that this [CommandVisitor] accepts.
  * It overrides [onConfigReloadedCallback] and it simply attempts to reload the [ConfigManager] of this class,
  * and shows whether this operation was successful, to the user.
  *

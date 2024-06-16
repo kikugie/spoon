@@ -13,9 +13,9 @@ object KMonkeyConfigTest : ModInitializer {
 
     const val MOD_ID: String = "monkeyconfig-test"
     val LOGGER: Logger = LoggerFactory.getLogger(MOD_ID)
-    val tomlManager: ConfigManager = TomlConfigManager("$MOD_ID-toml", settingGroups = MyTestSettingGroups.getSettingGroups(), settingBuilders =  MyTestSettings.getBuilders() as List<ConfigSetting.Builder<*, *, *>> + KMyTestSettings.getSettingBuilders())
-    val jsonManager: ConfigManager = JsonConfigManager("$MOD_ID-json", settingGroups = MyTestSettingGroups.getSettingGroups(), settingBuilders =  MyTestSettings.getBuilders() as List<ConfigSetting.Builder<*, *, *>> + KMyTestSettings.getSettingBuilders())
-    val hoconManager: ConfigManager = HoconConfigManager("$MOD_ID-hocon", settingGroups = MyTestSettingGroups.getSettingGroups(), settingBuilders =  MyTestSettings.getBuilders() as List<ConfigSetting.Builder<*, *, *>> + KMyTestSettings.getSettingBuilders())
+    val tomlManager: ConfigManager = TomlConfigManager("$MOD_ID-toml", settingGroups = MyTestSettingGroups.getSettingGroups(), settingBuilders =  MyTestSettings.getBuilders() as List<ConfigSetting.Builder<*, *, *>> /*+ KMyTestSettings.getSettingBuilders()*/)
+    val jsonManager: ConfigManager = JsonConfigManager("$MOD_ID-json", settingGroups = MyTestSettingGroups.getSettingGroups(), settingBuilders =  MyTestSettings.getBuilders() as List<ConfigSetting.Builder<*, *, *>> /*+ KMyTestSettings.getSettingBuilders()*/)
+    val hoconManager: ConfigManager = HoconConfigManager("$MOD_ID-hocon", settingGroups = MyTestSettingGroups.getSettingGroups(), settingBuilders =  MyTestSettings.getBuilders() as List<ConfigSetting.Builder<*, *, *>> /*+ KMyTestSettings.getSettingBuilders()*/)
     //val yamlManager: ConfigManager = YamlConfigManager("$MOD_ID-yaml", settingBuilders =  MyTestSettings.getBuilders() as List<ConfigSetting.Builder<*, *, *>>)
 
     //val tomlManagerMapGroup: ConfigManager = TomlConfigManager("$MOD_ID-toml-map", MyTestSettingGroups.getSettingGroups())
@@ -27,9 +27,6 @@ object KMonkeyConfigTest : ModInitializer {
         DefaultConfigRegistrar.registerConfigManager(hoconManager)
         //DefaultConfigRegistrar.registerConfigManager(tomlManagerMapGroup)
         //DefaultConfigRegistrar.registerConfigManager(yamlManager)
-
-        val numberSetting: NumberSetting<Int>? = tomlManager.getTypedSetting<Int, NumberSetting<Int>>(SettingLocation("a", "o"))
-
 
     }
 }

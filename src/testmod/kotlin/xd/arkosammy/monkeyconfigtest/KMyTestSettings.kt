@@ -1,16 +1,14 @@
 package xd.arkosammy.monkeyconfigtest
 
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting
-import xd.arkosammy.monkeyconfig.settings.list.BooleanListSetting
-import xd.arkosammy.monkeyconfig.settings.list.NumberListSetting
-import xd.arkosammy.monkeyconfig.settings.list.StringListSetting
-import xd.arkosammy.monkeyconfig.util.SettingLocation
 
 enum class KMyTestSettings(private val settingBuilder: ConfigSetting.Builder<*, *, *>) {
 
-    BOOLEAN_LIST_SETTING(BooleanListSetting.Builder(SettingLocation("listTable", "myBooleanListSetting"), defaultValue = mutableListOf(true, false, true))),
-    NUMBER_LIST_SETTING(NumberListSetting.Builder(SettingLocation("listTable", "myIntListSetting"), defaultValue = mutableListOf(2, 4, 6, 8, 10))),
-    STRING_LIST_SETTING(StringListSetting.Builder(SettingLocation("listTable", "myStringListSetting"), defaultValue = mutableListOf("Hello", "my", "name", "is", "Arkosammy")));
+
+    /*
+    //BOOLEAN_LIST_SETTING(BooleanListSetting.Builder(SettingLocation("listTable", "myBooleanListSetting"), defaultValue = mutableListOf(true, false, true))),
+    //NUMBER_LIST_SETTING(NumberListSetting.Builder(SettingLocation("listTable", "myIntListSetting"), defaultValue = mutableListOf(2, 4, 6, 8, 10))),
+    //STRING_LIST_SETTING(StringListSetting.Builder(SettingLocation("listTable", "myStringListSetting"), defaultValue = mutableListOf("Hello", "my", "name", "is", "Arkosammy")));
 
     companion object {
 
@@ -19,5 +17,7 @@ enum class KMyTestSettings(private val settingBuilder: ConfigSetting.Builder<*, 
         }
 
     }
+
+     */
 
 }

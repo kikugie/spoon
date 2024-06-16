@@ -11,7 +11,7 @@ import xd.arkosammy.monkeyconfig.util.SettingLocation
  * the input [SerializableType] type instance will be a [ListType] whose elements are also of a [SerializableType],
  * so you must manually convert each element of the [ListType] back to the actual type.
  *
- * @param [E] The element type the list in this [ConfigSetting]
+ * @param [E] The type of the elements in this [ListSetting]
  * @param [S] The type to use to serialize the elements of this list to and from a config file.
  * [S] will become the type parameter of [ListType] used to serialize the elements of this list.
  */
