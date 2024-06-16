@@ -6,7 +6,7 @@ import xd.arkosammy.monkeyconfig.types.SerializableType
 open class DefaultMutableSettingGroup @JvmOverloads constructor(
     name: String,
     comment: String? = null,
-    override val configSettings: MutableList<ConfigSetting<*, *>>,
+    override val configSettings: MutableList<ConfigSetting<*, *>> = mutableListOf(),
     loadBeforeSave: Boolean = false,
     registerSettingsAsCommands: Boolean = true) : DefaultSettingGroup(name, comment, configSettings, loadBeforeSave, registerSettingsAsCommands), MutableSettingGroup {
 
