@@ -125,8 +125,8 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
 
     open class Builder<T : Number> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: T) : ConfigSetting.Builder<NumberSetting<T>, T, NumberType<T>>(settingLocation, comment, defaultValue) {
 
-        private var lowerBound: T? = null
-        private var upperBound: T? = null
+        protected var lowerBound: T? = null
+        protected var upperBound: T? = null
 
         fun withLowerBound(lowerBound: T): Builder<T> {
             this.lowerBound = lowerBound
