@@ -29,7 +29,7 @@ open class BooleanSetting @JvmOverloads constructor(
         return BoolArgumentType.getBool(ctx, argumentName)
     }
 
-    class Builder @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: Boolean) : ConfigSetting.Builder<BooleanSetting, Boolean, BooleanType>(settingLocation, comment, defaultValue) {
+    open class Builder @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: Boolean) : ConfigSetting.Builder<BooleanSetting, Boolean, BooleanType>(settingLocation, comment, defaultValue) {
 
         override fun build(): BooleanSetting {
             return BooleanSetting(this.settingLocation, this.comment, this.defaultValue)

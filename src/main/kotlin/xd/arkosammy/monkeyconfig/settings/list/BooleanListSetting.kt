@@ -17,7 +17,7 @@ open class BooleanListSetting @JvmOverloads constructor(
     override val serializedToValueConverter: (ListType<BooleanType>) -> List<Boolean>
         get() = { serializedBooleanList -> serializedBooleanList.rawValue.toList().map { e -> e.rawValue } }
 
-    class Builder @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: List<Boolean>) : ListSetting.Builder<Boolean, BooleanType>(settingLocation, comment, defaultValue) {
+    open class Builder @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: List<Boolean>) : ListSetting.Builder<Boolean, BooleanType>(settingLocation, comment, defaultValue) {
 
         override fun build(): BooleanListSetting {
             return BooleanListSetting(this.settingLocation, this.comment, this.defaultValue)

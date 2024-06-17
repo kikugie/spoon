@@ -17,7 +17,7 @@ open class NumberListSetting<T : Number> @JvmOverloads constructor(
     override val serializedToValueConverter: (ListType<NumberType<T>>) -> List<T>
         get() = { serializedNumberList -> serializedNumberList.rawValue.toList().map { e -> e.rawValue } }
 
-    class Builder<T : Number> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: List<T>) : ListSetting.Builder<T, NumberType<T>>(settingLocation, comment, defaultValue) {
+    open class Builder<T : Number> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: List<T>) : ListSetting.Builder<T, NumberType<T>>(settingLocation, comment, defaultValue) {
 
         override fun build(): NumberListSetting<T> {
             return NumberListSetting(this.settingLocation, this.comment, this.defaultValue)

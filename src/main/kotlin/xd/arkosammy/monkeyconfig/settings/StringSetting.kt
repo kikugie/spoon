@@ -29,7 +29,7 @@ open class StringSetting @JvmOverloads constructor(
     override val argumentType: StringArgumentType
         get() = StringArgumentType.string()
 
-    class Builder @JvmOverloads constructor(id: SettingLocation, comment: String? = null, defaultValue: String) : ConfigSetting.Builder<StringSetting, String, StringType>(id, comment, defaultValue) {
+    open class Builder @JvmOverloads constructor(id: SettingLocation, comment: String? = null, defaultValue: String) : ConfigSetting.Builder<StringSetting, String, StringType>(id, comment, defaultValue) {
 
         override fun build(): StringSetting {
             return StringSetting(this.settingLocation, this.comment, this.defaultValue)
