@@ -27,7 +27,7 @@ open class StringMapSettingGroup @JvmOverloads constructor(
         return StringSetting(settingLocation, defaultValue = serializedEntry.rawValue, value = serializedEntry.rawValue)
     }
 
-    override fun getMapEntryFromValue(settingLocation: SettingLocation, defaultValue: String, value: String): ConfigSetting<String, StringType> {
-        return StringSetting(settingLocation, defaultValue = defaultValue, value = value)
-    }
+    override fun getMapEntryFromValue(settingLocation: SettingLocation, defaultValue: String, value: String): ConfigSetting<String, StringType> =
+        StringSetting(settingLocation, defaultValue = defaultValue, value = value)
+
 }

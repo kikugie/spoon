@@ -19,9 +19,7 @@ open class StringListSetting @JvmOverloads constructor(
 
     open class Builder @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: List<String>) : ListSetting.Builder<String, StringType>(settingLocation, comment, defaultValue) {
 
-        override fun build(): StringListSetting {
-            return StringListSetting(this.settingLocation, this.comment, this.defaultValue)
-        }
+        override fun build(): StringListSetting = StringListSetting(this.settingLocation, this.comment, this.defaultValue)
 
     }
 

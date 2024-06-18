@@ -26,8 +26,7 @@ open class MutableStringMapSettingGroup @JvmOverloads constructor(
         this.mapEntries.add(newSetting)
     }
 
-    override fun toImmutable(): AbstractMapSettingGroup<String, StringType> {
-        return StringMapSettingGroup(this.name, this.comment, this.defaultTableEntries.toList(), this.mapEntries.toList())
-    }
+    override fun toImmutable(): AbstractMapSettingGroup<String, StringType> =
+         StringMapSettingGroup(this.name, this.comment, this.defaultTableEntries.toList(), this.mapEntries.toList())
 
 }

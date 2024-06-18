@@ -53,9 +53,7 @@ class CommandControllableEnumSetting<E> @JvmOverloads constructor(
 
     open class Builder<E> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: E) : EnumSetting.Builder<E>(settingLocation, comment, defaultValue) where E : Enum<E>, E : StringIdentifiable {
 
-        override fun build(): EnumSetting<E> {
-            return CommandControllableEnumSetting(this.settingLocation, this.comment, this.defaultValue)
-        }
+        override fun build(): EnumSetting<E> = CommandControllableEnumSetting(this.settingLocation, this.comment, this.defaultValue)
 
     }
 

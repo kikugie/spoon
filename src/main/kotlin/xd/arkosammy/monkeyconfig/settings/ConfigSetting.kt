@@ -34,8 +34,14 @@ abstract class ConfigSetting<T, S : SerializableType<*>> @JvmOverloads construct
     val serializedDefaultValue: S
         get() = valueToSerializedConverter(this.defaultValue)
 
+    /**
+     * Function to transform the value of this [ConfigSetting] to its [SerializableType] form for use during serialization.
+     */
     protected abstract val valueToSerializedConverter: (T) -> S
 
+    /**
+     * Function to transform a [SerializableType] into an instance of the value stored by this [ConfigSetting] for use during deserialization.
+     */
     protected abstract val serializedToValueConverter: (S) -> T
 
     /**
@@ -54,9 +60,8 @@ abstract class ConfigSetting<T, S : SerializableType<*>> @JvmOverloads construct
         this.value = this.defaultValue
     }
 
-    override fun toString(): String {
-        return "${this::class.simpleName}{id=${this.settingLocation}, comment=${this.comment ?: "null"}, defaultValue=${this.defaultValue}}, value=${this.value}, serializedType=${this.serializedDefaultValue::class.simpleName}}"
-    }
+    override fun toString(): String =
+        "${this::class.simpleName}{id=${this.settingLocation}, comment=${this.comment ?: "null"}, defaultValue=${this.defaultValue}}, value=${this.value}, serializedType=${this.serializedDefaultValue::class.simpleName}}"
 
     /**
      * A builder class for a [ConfigSetting].

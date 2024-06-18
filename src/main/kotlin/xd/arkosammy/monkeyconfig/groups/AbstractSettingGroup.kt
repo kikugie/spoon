@@ -18,8 +18,7 @@ abstract class AbstractSettingGroup @JvmOverloads constructor(
         this._isRegistered = true
     }
 
-    override fun toString(): String {
-        return "${this::class.simpleName}{name=${this.name}, comment=${this.comment ?: "null"}, settingAmount=${this.configSettings.size}, registered=$isRegistered, loadBeforeSave=$loadBeforeSave, registerSettingsAsCommands=$registerSettingsAsCommands}"
-    }
+    override fun toString(): String =
+        "${this::class.simpleName}{name=${this.name}, comment=${this.comment ?: "null"}, settingAmount=${this.configSettings.size}, registered=$isRegistered, loadBeforeSave=$loadBeforeSave, registerSettingsAsCommands=$registerSettingsAsCommands}"
 
 }

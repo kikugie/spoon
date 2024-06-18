@@ -167,7 +167,6 @@ abstract class AbstractConfigManager : ConfigManager {
         return null
     }
 
-    // Not using reified generics to keep interoperability with Java and to avoid the need to expose the config tables
     @Suppress("UNCHECKED_CAST")
     override fun <V, T : ConfigSetting<V, *>> getTypedSetting(settingLocation: SettingLocation, settingClass: Class<T>): T? {
         val groupName: String = settingLocation.groupName
@@ -176,9 +175,6 @@ abstract class AbstractConfigManager : ConfigManager {
             if (settingGroup.name != groupName) {
                 continue
             }
-            // The following unchecked cast is done safely using the Class#isInstance method.
-            // This checks for whether the current setting is an instance of the settingClass parameter,
-            // which determines the type of the setting that the caller wants to retrieve
             for (setting: ConfigSetting<*, *> in settingGroup.configSettings) {
                 if (!settingClass.isInstance(setting) || setting.settingLocation.settingName != settingName) {
                     continue
@@ -221,8 +217,7 @@ abstract class AbstractConfigManager : ConfigManager {
         }
     }
 
-    override fun toString(): String {
-        return "${this::class.simpleName}{name=${this.configName}, path=${this.configFilePath}, tableAmount=${this.settingGroups.size}}"
-    }
+    override fun toString(): String =
+        "${this::class.simpleName}{name=${this.configName}, path=${this.configFilePath}, tableAmount=${this.settingGroups.size}}"
 
 }

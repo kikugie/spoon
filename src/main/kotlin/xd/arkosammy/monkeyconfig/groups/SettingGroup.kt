@@ -117,10 +117,10 @@ interface SettingGroup {
             val settingLocation = "${this.name}.${setting.settingLocation.settingName}"
             val defaultRawValue: Any = setting.serializedDefaultValue.rawValue
             val rawValue: Any = if (setting is EnumSetting<*>) {
-                fileConfig.getEnum(settingLocation, setting.enumClass) ?: defaultRawValue
+                fileConfig.getEnum(settingLocation, setting.enumClass)
             } else {
-                fileConfig.getOrElse(settingLocation, defaultRawValue) ?: defaultRawValue
-            }
+                fileConfig.getOrElse(settingLocation, defaultRawValue)
+            } ?: defaultRawValue
             val serializedRawValue: SerializableType<*> = toSerializedType(rawValue)
             setValueSafely(setting, serializedRawValue)
         }
@@ -132,8 +132,7 @@ interface SettingGroup {
      * @param [settingName] The name of the [ConfigSetting] to look for.
      * @return whether this [SettingGroup] contains a [ConfigSetting] whose name matches [settingName].
      */
-    fun containsSettingName(settingName: String) : Boolean =
-        this.configSettings.any { setting -> setting.settingLocation.settingName == settingName }
+    fun containsSettingName(settingName: String) : Boolean = this.configSettings.any { setting -> setting.settingLocation.settingName == settingName }
 
 }
 

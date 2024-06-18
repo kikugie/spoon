@@ -38,17 +38,17 @@ abstract class AbstractMapSettingGroup<V : Any, S : SerializableType<*>> @JvmOve
     init {
         val settingEntries: MutableList<ConfigSetting<V, S>> = mutableListOf()
         for((key, value) in mapEntries) {
-            val newSetting: ConfigSetting<V, S> = this.getMapEntryFromValue(SettingLocation(this.name, key), value)
-            settingEntries.add(newSetting)
+            val newMapEntry: ConfigSetting<V, S> = this.getMapEntryFromValue(SettingLocation(this.name, key), value)
+            settingEntries.add(newMapEntry)
         }
 
         val defaultSettingEntries: MutableList<ConfigSetting<V, S>> = mutableListOf()
         for((key, value) in defaultEntries) {
-            val newSetting: ConfigSetting<V, S> = this.getMapEntryFromValue(SettingLocation(this.name, key), value)
-            defaultSettingEntries.add(newSetting)
+            val newDefaultMapEntry: ConfigSetting<V, S> = this.getMapEntryFromValue(SettingLocation(this.name, key), value)
+            defaultSettingEntries.add(newDefaultMapEntry)
         }
-        this.mapEntries = settingEntries.toMutableList()
-        this.defaultTableEntries = defaultSettingEntries.toMutableList()
+        this.mapEntries = settingEntries
+        this.defaultTableEntries = defaultSettingEntries
     }
 
     override val isRegistered: Boolean
@@ -57,6 +57,12 @@ abstract class AbstractMapSettingGroup<V : Any, S : SerializableType<*>> @JvmOve
     override fun setAsRegistered() {
         this._isRegistered = true
     }
+
+    final override val registerSettingsAsCommands: Boolean
+        get() = false
+
+    final override val loadBeforeSave: Boolean
+        get() = true
 
     override fun get(key: String) : V? {
         for (mapEntry: ConfigSetting<V, S> in this.mapEntries) {
@@ -83,12 +89,10 @@ abstract class AbstractMapSettingGroup<V : Any, S : SerializableType<*>> @JvmOve
     }
 
     override fun setValues(fileConfig: FileConfig) {
-        if(this.mapEntries.isNotEmpty()) {
-            for(setting: ConfigSetting<V, S> in this.mapEntries) {
-                val settingAddress = "${this.name}.${setting.settingLocation.settingName}"
-                val valueAsSerialized: S = setting.serializedValue
-                fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.rawList else valueAsSerialized.rawValue)
-            }
+        for(setting: ConfigSetting<V, S> in this.mapEntries) {
+            val settingAddress = "${this.name}.${setting.settingLocation.settingName}"
+            val valueAsSerialized: S = setting.serializedValue
+            fileConfig.set<Any>(settingAddress, if(valueAsSerialized is ListType<*>) valueAsSerialized.rawList else valueAsSerialized.rawValue)
         }
         this.comment?.let { comment ->
             if(fileConfig is CommentedFileConfig) fileConfig.setComment(this.name, comment)
@@ -119,8 +123,7 @@ abstract class AbstractMapSettingGroup<V : Any, S : SerializableType<*>> @JvmOve
 
     protected abstract fun getMapEntryFromValue(settingLocation: SettingLocation, defaultValue: V, value: V = defaultValue) : ConfigSetting<V, S>
 
-    override fun toString(): String {
-        return "${this::class.simpleName}{name=${this.name}, comment=${this.comment ?: "null"}, settingAmount=${this.configSettings.size}, registered=$isRegistered, loadBeforeSave=$loadBeforeSave, registerSettingsAsCommands=$registerSettingsAsCommands}"
-    }
+    override fun toString(): String =
+        "${this::class.simpleName}{name=${this.name}, comment=${this.comment ?: "null"}, settingAmount=${this.configSettings.size}, registered=$isRegistered, loadBeforeSave=$loadBeforeSave, registerSettingsAsCommands=$registerSettingsAsCommands}"
 
 }

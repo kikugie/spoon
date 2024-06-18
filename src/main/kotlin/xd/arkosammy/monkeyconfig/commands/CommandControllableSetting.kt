@@ -51,9 +51,8 @@ interface CommandControllableSetting<out V : Any, T : ArgumentType<*>> {
      * @param [suggestionsBuilder] A builder used to create [Suggestions] for an [ArgumentCommandNode]
      * @return a [CompletableFuture] of [Suggestions] used as part of this [ConfigSetting]'s command usage.
      */
-    fun getSuggestions(ctx: CommandContext<ServerCommandSource>, suggestionsBuilder: SuggestionsBuilder) : CompletableFuture<Suggestions> {
-        return this.argumentType.listSuggestions(ctx, suggestionsBuilder)
-    }
+    fun getSuggestions(ctx: CommandContext<ServerCommandSource>, suggestionsBuilder: SuggestionsBuilder) : CompletableFuture<Suggestions> =
+        this.argumentType.listSuggestions(ctx, suggestionsBuilder)
 
     /**
      * The callback that will be run when the [ArgumentCommandNode]'s "executes" block is called.

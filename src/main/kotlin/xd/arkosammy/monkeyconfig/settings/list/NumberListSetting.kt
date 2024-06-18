@@ -19,9 +19,7 @@ open class NumberListSetting<T : Number> @JvmOverloads constructor(
 
     open class Builder<T : Number> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: List<T>) : ListSetting.Builder<T, NumberType<T>>(settingLocation, comment, defaultValue) {
 
-        override fun build(): NumberListSetting<T> {
-            return NumberListSetting(this.settingLocation, this.comment, this.defaultValue)
-        }
+        override fun build(): NumberListSetting<T> = NumberListSetting(this.settingLocation, this.comment, this.defaultValue)
 
     }
 

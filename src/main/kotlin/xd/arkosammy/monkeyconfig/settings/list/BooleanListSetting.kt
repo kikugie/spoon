@@ -19,9 +19,7 @@ open class BooleanListSetting @JvmOverloads constructor(
 
     open class Builder @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: List<Boolean>) : ListSetting.Builder<Boolean, BooleanType>(settingLocation, comment, defaultValue) {
 
-        override fun build(): BooleanListSetting {
-            return BooleanListSetting(this.settingLocation, this.comment, this.defaultValue)
-        }
+        override fun build(): BooleanListSetting = BooleanListSetting(this.settingLocation, this.comment, this.defaultValue)
 
     }
 

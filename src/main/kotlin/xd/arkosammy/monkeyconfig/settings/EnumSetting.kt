@@ -19,9 +19,7 @@ open class EnumSetting<E : Enum<E>> @JvmOverloads constructor(
 
     open class Builder<E : Enum<E>> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: E) : ConfigSetting.Builder< EnumSetting<E>, E, EnumType<E>>(settingLocation, comment, defaultValue) {
 
-        override fun build(): EnumSetting<E> {
-            return EnumSetting(this.settingLocation, this.comment, this.defaultValue)
-        }
+        override fun build(): EnumSetting<E> = EnumSetting(this.settingLocation, this.comment, this.defaultValue)
 
     }
 

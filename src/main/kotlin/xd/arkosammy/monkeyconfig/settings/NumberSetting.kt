@@ -4,7 +4,6 @@ import com.mojang.brigadier.arguments.*
 import com.mojang.brigadier.context.CommandContext
 import net.minecraft.server.command.ServerCommandSource
 import xd.arkosammy.monkeyconfig.MonkeyConfig
-import xd.arkosammy.monkeyconfig.commands.CommandControllableSetting
 import xd.arkosammy.monkeyconfig.types.NumberType
 import xd.arkosammy.monkeyconfig.util.SettingLocation
 import kotlin.jvm.Throws
@@ -17,7 +16,7 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
     defaultValue: T,
     value: T = defaultValue,
     private val lowerBound: T? = null,
-    private val upperBound: T? = null) : ConfigSetting<T, NumberType<T>>(settingLocation, comment, defaultValue, value), CommandControllableSetting<T, ArgumentType<T>> {
+    private val upperBound: T? = null) : AbstractCommandControllableSetting<T, NumberType<T>, ArgumentType<T>>(settingLocation, comment, defaultValue, value) {
 
     override var value: T
         get() = super.value
@@ -39,9 +38,6 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
     override val serializedToValueConverter: (NumberType<T>) -> T
         get() = { numberType -> numberType.rawValue }
 
-    override val commandIdentifier: SettingLocation
-        get() = settingLocation
-
     override val argumentType: ArgumentType<T>
         @Throws(IllegalArgumentException::class)
         get() = when (this.defaultValue) {
@@ -54,13 +50,11 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
             else -> throw IllegalArgumentException("Unsupported number type: ${this.defaultValue::class.java}")
         }
 
-    // The following unchecked cast operations in the getNumArgumentType methods are done under the assumption
-    // that the primitive type parameter of this object can provide a corresponding ArgumentType<T>,
-    // where T is one of the numerical data types.
-    // The numerical argument types such as IntegerArgumentType are also assumed to implement ArgumentType<Integer> directly.
-    // For example, if the type parameter of this class is Double,
-    // then the branch taken in this method should result in a DoubleArgumentType being returned.
-    // DoubleArgumentType implements ArgumentType<Double>, so the cast should be successful.
+    // The following unchecked casts are safe if the ArgumentType provided by one of Brigadier's argument types for numerical
+    // arguments are subtypes of the corresponding ArgumentType<T>.
+    // For example, a NumberSetting<Double> should retrieve its ArgumentType with DoubleArgumentType.doubleArg(), which returns
+    // an instance of ArgumentType<Double>. In this case, the type parameter of the setting is Double, so this argument type can be safely casted to
+    // ArgumentType<Double>.
     @Suppress("UNCHECKED_CAST")
     private fun getByteArgumentType(): ArgumentType<T> {
         val min = max(Byte.MIN_VALUE.toInt(), lowerBound?.toInt() ?: Byte.MIN_VALUE.toInt())
@@ -103,31 +97,31 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
         return DoubleArgumentType.doubleArg(min, max) as ArgumentType<T>
     }
 
+    // The following unchecked cast is safe as long as the type of the value retrieved by the "getX"
+    // method matches the type parameter of the current NumberSetting.
+    // For example, given a NumberSetting<Int>, an IntegerArgumentType should have been supplied to the command setter node
+    // and the value of the command argument should be retrieved with IntegerArgumentType.getInteger(), which returns an Int, which can then be safely casted to T,
+    // which in this case, is Int.
     @Suppress("UNCHECKED_CAST")
     override fun getArgumentValue(ctx: CommandContext<ServerCommandSource>, argumentName: String): T {
-        // The following unchecked cast operations are done under the assumption
-        // that the type parameter of this object matches the argument type provided by this instance.
-        // For example, a NumberSetting<Int> should return an IntegerArgumentType.
-        // Similarly, this method should retrieve the argument value by using the IntegerArgumentType,
-        // which will return an integer, which should be safely casted to Int
         return when (this.defaultValue) {
-            is Byte, is Short, is Int -> IntegerArgumentType.getInteger(ctx, argumentName) as T
-            is Long -> LongArgumentType.getLong(ctx, argumentName) as T
-            is Float -> FloatArgumentType.getFloat(ctx, argumentName) as T
-            is Double -> DoubleArgumentType.getDouble(ctx, argumentName) as T
+            is Byte, is Short, is Int -> IntegerArgumentType.getInteger(ctx, argumentName)
+            is Long -> LongArgumentType.getLong(ctx, argumentName)
+            is Float -> FloatArgumentType.getFloat(ctx, argumentName)
+            is Double -> DoubleArgumentType.getDouble(ctx, argumentName)
             else -> throw IllegalArgumentException("Unsupported number type: ${this.defaultValue::class.java}")
-        }
+        } as T
     }
 
-    @Suppress("UNCHECKED_CAST")
-    // The following unchecked cast operation is safe under the assumption
+    // The following unchecked cast is safe under the assumption
     // that T is always one of the numerical data types shown in this "when"
     // expression.
     // For instance, if the default value of this setting is of type "Double", and "number" is an Int,
     // then the "Double" branch should be taken, converting the number to a Double,
     // which should then be successfully casted to T, which in this case is Double.
-    private fun convertNumberToTypeT(number: Number): T {
-        return when (defaultValue) {
+    @Suppress("UNCHECKED_CAST")
+    private fun convertNumberToTypeT(number: Number): T =
+         when (this.defaultValue) {
             is Byte -> number.toByte()
             is Short -> number.toShort()
             is Int -> number.toInt()
@@ -135,12 +129,10 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
             is Float -> number.toFloat()
             is Double -> number.toDouble()
             else -> throw IllegalArgumentException("Unsupported number type: ${defaultValue::class.java}")
-        } as T
-    }
+         } as T
 
-    override fun toString(): String {
-        return "${this::class.simpleName}{numType=${this.value::class.simpleName}, location=${this.settingLocation}, comment=${this.comment ?: "null"}, defaultValue=${this.defaultValue}}, value=${this.value}, serializedType=${this.serializedDefaultValue::class.simpleName}, lowerBound=${this.lowerBound ?: "null"}, upperBound=${this.upperBound ?: "null"}}"
-    }
+    override fun toString(): String =
+        "${this::class.simpleName}{numType=${this.value::class.simpleName}, location=${this.settingLocation}, comment=${this.comment ?: "null"}, defaultValue=${this.defaultValue}}, value=${this.value}, serializedType=${this.serializedDefaultValue::class.simpleName}, lowerBound=${this.lowerBound ?: "null"}, upperBound=${this.upperBound ?: "null"}}"
 
     open class Builder<T : Number> @JvmOverloads constructor(settingLocation: SettingLocation, comment: String? = null, defaultValue: T) : ConfigSetting.Builder<NumberSetting<T>, T, NumberType<T>>(settingLocation, comment, defaultValue) {
 
@@ -157,18 +149,18 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
             return this
         }
 
-        override fun build(): NumberSetting<T> {
-            return NumberSetting(settingLocation, this.comment, defaultValue, defaultValue, lowerBound, upperBound)
-        }
+        override fun build(): NumberSetting<T> = NumberSetting(settingLocation, this.comment, defaultValue, defaultValue, lowerBound, upperBound)
 
     }
 
 }
 
 operator fun Number.compareTo(other: Number) : Int {
+    val thisAsDouble: Double = this.toDouble()
+    val otherAsDouble: Double = other.toDouble()
     return when {
-        this.toDouble() > other.toDouble() -> 1
-        this.toDouble() < other.toDouble() -> -1
+        thisAsDouble > otherAsDouble -> 1
+        thisAsDouble < otherAsDouble -> -1
         else -> 0
     }
 }

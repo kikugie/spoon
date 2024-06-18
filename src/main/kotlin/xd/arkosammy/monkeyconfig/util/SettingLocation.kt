@@ -14,8 +14,6 @@ import xd.arkosammy.monkeyconfig.managers.ConfigManager
 @JvmRecord
 data class SettingLocation(val groupName: String, val settingName: String) {
 
-    override fun toString(): String {
-        return "$groupName.$settingName"
-    }
+    override fun toString(): String = "$groupName.$settingName"
 
 }
