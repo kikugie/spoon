@@ -30,7 +30,7 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
                 MonkeyConfig.LOGGER.error("Value $value for setting ${this.settingLocation} is above the upper bound!")
                 return
             }
-            super.value = value
+            super.value = convertNumberToTypeT(value)
         }
 
     override val valueToSerializedConverter: (T) -> NumberType<T>
@@ -117,6 +117,25 @@ open class NumberSetting<T : Number> @JvmOverloads constructor(
             is Double -> DoubleArgumentType.getDouble(ctx, argumentName) as T
             else -> throw IllegalArgumentException("Unsupported number type: ${this.defaultValue::class.java}")
         }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    // The following unchecked cast operation is safe under the assumption
+    // that T is always one of the numerical data types shown in this "when"
+    // expression.
+    // For instance, if the default value of this setting is of type "Double", and "number" is an Int,
+    // then the "Double" branch should be taken, converting the number to a Double,
+    // which should then be successfully casted to T, which in this case is Double.
+    private fun convertNumberToTypeT(number: Number): T {
+        return when (defaultValue) {
+            is Byte -> number.toByte()
+            is Short -> number.toShort()
+            is Int -> number.toInt()
+            is Long -> number.toLong()
+            is Float -> number.toFloat()
+            is Double -> number.toDouble()
+            else -> throw IllegalArgumentException("Unsupported number type: ${defaultValue::class.java}")
+        } as T
     }
 
     override fun toString(): String {
