@@ -14,6 +14,7 @@ open class DefaultMutableSettingGroup @JvmOverloads constructor(
         this.configSettings.add(setting)
     }
 
-    override fun toImmutable(): SettingGroup = DefaultSettingGroup(name, comment, configSettings.toList(), loadBeforeSave)
+    override fun toImmutable(configSettings: List<ConfigSetting<*, *>>?): SettingGroup =
+        DefaultSettingGroup(this.name, this.comment, configSettings?.toList() ?: this.configSettings , this.loadBeforeSave)
 
 }

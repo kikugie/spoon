@@ -81,23 +81,19 @@ abstract class AbstractConfigManager : ConfigManager {
             //.onLoad { this.onLoaded }
             //.onAutoReload { this.onAutoReload }
 
-        val newGroups: MutableList<MutableSettingGroup> = settingGroups?.toMutableList() ?: mutableListOf()
-        for(settingBuilder: ConfigSetting.Builder<*, *, *> in settingBuilders) {
-            val settingGroupName: String = settingBuilder.settingLocation.groupName
-            // Create a new DefaultSettingGroup if a setting group for this setting builder isn't found
-            if(!newGroups.any { group -> group.name == settingGroupName}) {
-                val newGroup: MutableSettingGroup = DefaultMutableSettingGroup(settingGroupName, configSettings = mutableListOf())
-                MonkeyConfig.LOGGER.warn("Found no setting group for setting: ${settingBuilder.settingLocation.settingName}: A new setting group named $settingGroupName will be added to this ${this::class.simpleName} with name ${this.configName}")
-                newGroups.add(newGroup)
+        val groupSettingsByGroupName: Map<String, List<ConfigSetting<*, *>>> = settingBuilders.map { settingBuilder -> settingBuilder.build() }.groupBy { setting: ConfigSetting<*, *> -> setting.settingLocation.groupName }
+        val newGroups: MutableList<MutableSettingGroup> = settingGroups?.toMutableList() ?: mutableListOf<MutableSettingGroup>()
+
+        // Create new SettingGroups for ConfigSetting lists wihtout a corresponding SettingGroup in the newGroups list
+        for ((groupName, settingList) in groupSettingsByGroupName) {
+            if (newGroups.any { settingGroup -> settingGroup.name == groupName }) {
+                continue
             }
-            for(settingGroup: MutableSettingGroup in newGroups) {
-                if(settingGroup.name != settingGroupName) {
-                    continue
-                }
-                settingGroup.addConfigSetting(settingBuilder.build())
-            }
+            val newGroup: MutableSettingGroup = DefaultMutableSettingGroup(groupName, configSettings = settingList.toMutableList())
+            newGroups.add(newGroup)
         }
-        this.settingGroups = newGroups.toList().map(MutableSettingGroup::toImmutable)
+
+        this.settingGroups = newGroups.toList().filter { mutableSettingGroup -> groupSettingsByGroupName.containsKey(mutableSettingGroup.name) }.map { mutableSettingGroup -> mutableSettingGroup.toImmutable(groupSettingsByGroupName.get(mutableSettingGroup.name)) }
         this.initialize()
     }
 
@@ -109,8 +105,8 @@ abstract class AbstractConfigManager : ConfigManager {
         }
         this.checkForSettingNameUniqueness()
         this.ifConfigPresent { fileConfig ->
-            fileConfig.load()
             for (settingGroup: SettingGroup in this.settingGroups) {
+            fileConfig.load()
                 settingGroup.loadValues(fileConfig)
                 settingGroup.onLoaded()
             }

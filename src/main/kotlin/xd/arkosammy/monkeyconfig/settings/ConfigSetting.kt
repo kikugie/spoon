@@ -75,7 +75,7 @@ abstract class ConfigSetting<T, S : SerializableType<*>> @JvmOverloads construct
      */
     abstract class Builder<T : ConfigSetting<V, S>, V : Any, S : SerializableType<*>> @JvmOverloads constructor(val settingLocation: SettingLocation, protected var comment: String? = null, val defaultValue: V) {
 
-        val tableName: String
+        val groupName: String
             get() = settingLocation.groupName
 
         abstract fun build() : T

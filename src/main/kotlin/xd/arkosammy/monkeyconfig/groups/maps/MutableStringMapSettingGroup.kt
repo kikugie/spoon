@@ -26,7 +26,15 @@ open class MutableStringMapSettingGroup @JvmOverloads constructor(
         this.mapEntries.add(newSetting)
     }
 
-    override fun toImmutable(): AbstractMapSettingGroup<String, StringType> =
-         StringMapSettingGroup(this.name, this.comment, this.defaultTableEntries.toList(), this.mapEntries.toList())
+    override fun toImmutable(configSettings: List<ConfigSetting<*, *>>?): AbstractMapSettingGroup<String, StringType> =
+         StringMapSettingGroup(this.name, this.comment, defaultEntries = this.defaultTableEntries.toList().associate { setting ->
+             Pair(setting.settingLocation.settingName, setting.value)
+         },  mapEntries = configSettings?.toList()?.filter { setting ->
+             setting.value is String && setting.serializedValue is StringType
+         }?.associate { setting ->
+             Pair(setting.settingLocation.settingName, setting.value.toString())
+         } ?: this.mapEntries.toList().associate { setting ->
+             Pair(setting.settingLocation.settingName, setting.value)
+         })
 
 }
