@@ -93,7 +93,7 @@ abstract class AbstractConfigManager : ConfigManager {
             newGroups.add(newGroup)
         }
 
-        this.settingGroups = newGroups.toList().filter { mutableSettingGroup -> groupSettingsByGroupName.containsKey(mutableSettingGroup.name) }.map { mutableSettingGroup -> mutableSettingGroup.toImmutable(groupSettingsByGroupName.get(mutableSettingGroup.name)) }
+        this.settingGroups = newGroups.toList().map { mutableSettingGroup -> mutableSettingGroup.toImmutable(groupSettingsByGroupName.get(mutableSettingGroup.name)) }
         this.initialize()
     }
 
